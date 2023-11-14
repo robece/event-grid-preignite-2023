@@ -4,11 +4,11 @@ Demos available in this repository:
 
 1. Push/Pull delivery.
 
-    :::image type="content" source="media/demo-1.png" alt-text="High-level diagram of Event Grid for push and pull delivery" lightbox="media/demo-1.png"  border="true":::
+    <img src="media/demo-1.png" alt="High-level diagram of Event Grid for push and pull delivery" style="border: 1px solid  lightgray;">
 
 2. MQTT Broker.
 
-    :::image type="content" source="media/demo-2.png" alt-text="High-level diagram of Event Grid for MQTT Broker" lightbox="demo-2.png"  border="true":::
+    <img src="media/demo-2.png" alt="High-level diagram of Event Grid for MQTT Broker" style="border: 1px solid  lightgray;">
 
 Instructions to create a client certificate for testing.
 
