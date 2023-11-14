@@ -1,0 +1,10 @@
+﻿{
+  "version": "1.0.0",
+  "mqttEndpoint": "",
+  "mqttPort": ,
+  "clientId": "",
+  "mqttBrokertopic": "",
+  "rootCertificateFileName": "",
+  "clientCertificateFileName": "",
+  "clientCertificateKeyFileName": ""
+}

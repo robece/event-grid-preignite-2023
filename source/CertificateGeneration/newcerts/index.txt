@@ -1,0 +1,2 @@
+V	231210224306Z		01	unknown	/C=US/O=Contoso/OU=IoT/CN=Azure Mqtt Intermediate Cert Test Only
+V	231210224445Z		02	unknown	/C=US/O=Contoso/OU=IoT/CN=preIgnite2023.mqtt.contoso.com

@@ -1,0 +1,12 @@
+﻿{
+  "version": "1.0.0",
+  "processorStorageConnectionString": "",
+  "processorStorageContainer": "",
+  "processorConnectionString": "",
+  "processorHub": "hub01",
+  "namespaceTopicEndpoint": "",
+  "namespaceTopicEndpointAccessKey": "",
+  "namespaceTopicName": "",
+  "namespaceTopicSubscriptionName": "",
+  "namespaceTopicSubscriptionMaxEvents": 
+}
