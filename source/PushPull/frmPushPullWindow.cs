@@ -17,6 +17,12 @@ namespace PushPull
         private int _idxPublished = 0;
         private EventProcessorClient? _eventProcessorClient;
         private int _lstViewFontSize = 17;
+        private List<KeyValuePair<string, double>> elements = new List<KeyValuePair<string, double>>
+            {
+                new KeyValuePair<string, double>("Acknowledged", 0.5),
+                new KeyValuePair<string, double>("Released", 0.3),
+                new KeyValuePair<string, double>("Rejected", 0.2),
+            };
 
         public frmPushPullWindow()
         {
@@ -298,21 +304,13 @@ namespace PushPull
 
         private string RandomizeEventState()
         {
-            List<KeyValuePair<string, double>> elements = new List<KeyValuePair<string, double>>
-            {
-                new KeyValuePair<string, double>("Acknowledged", 0.5),
-                new KeyValuePair<string, double>("Released", 0.3),
-                new KeyValuePair<string, double>("Rejected", 0.2),
-            };
-
             Random r = new Random();
-            double diceRoll = r.NextDouble();
-
+            double randomNumber = r.NextDouble();
             double cumulative = 0.0;
             for (int i = 0; i < elements.Count; i++)
             {
                 cumulative += elements[i].Value;
-                if (diceRoll < cumulative)
+                if (randomNumber < cumulative)
                 {
                     return elements[i].Key;
                 }
