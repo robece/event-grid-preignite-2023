@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPushPullWindow));
             pictureBox1 = new PictureBox();
             statusStrip = new StatusStrip();
+            lblVersion = new ToolStripStatusLabel();
             progressBarPublish = new ProgressBar();
             label1 = new Label();
             btnStartPublish = new Button();
@@ -51,7 +52,6 @@
             timerPull = new System.Windows.Forms.Timer(components);
             btnStopPull = new Button();
             btnClearPull = new Button();
-            lblVersion = new ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             statusStrip.SuspendLayout();
             SuspendLayout();
@@ -75,6 +75,13 @@
             statusStrip.Size = new Size(1924, 22);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "statusStrip1";
+            // 
+            // lblVersion
+            // 
+            lblVersion.BackColor = SystemColors.Control;
+            lblVersion.ForeColor = Color.SlateGray;
+            lblVersion.Name = "lblVersion";
+            lblVersion.Size = new Size(0, 17);
             // 
             // progressBarPublish
             // 
@@ -274,12 +281,6 @@
             btnClearPull.Text = "Clear";
             btnClearPull.UseVisualStyleBackColor = true;
             btnClearPull.Click += btnClearPull_Click;
-            // 
-            // lblVersion
-            // 
-            lblVersion.BackColor = SystemColors.Control;
-            lblVersion.Name = "lblVersion";
-            lblVersion.Size = new Size(0, 17);
             // 
             // frmPushPullWindow
             // 

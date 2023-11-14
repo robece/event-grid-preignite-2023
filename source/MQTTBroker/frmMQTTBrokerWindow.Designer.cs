@@ -71,7 +71,7 @@
             // 
             lblVersion.BackColor = SystemColors.Control;
             lblVersion.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            lblVersion.ForeColor = SystemColors.ControlText;
+            lblVersion.ForeColor = Color.SlateGray;
             lblVersion.Name = "lblVersion";
             lblVersion.Size = new Size(0, 17);
             // 
