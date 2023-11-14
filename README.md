@@ -1,5 +1,15 @@
 # Event Grid PreIgnite 2023
 
+Demos available in this repository:
+
+1. Push/Pull delivery.
+
+    :::image type="content" source="media/demo-1.png" alt-text="High-level diagram of Event Grid for push and pull delivery" lightbox="media/demo-1.png"  border="true":::
+
+2. MQTT Broker.
+
+    :::image type="content" source="media/demo-2.png" alt-text="High-level diagram of Event Grid for MQTT Broker" lightbox="demo-2.png"  border="true":::
+
 Instructions to create a client certificate for testing.
 
 1. Open a terminal.
