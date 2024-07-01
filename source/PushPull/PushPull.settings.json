@@ -1,9 +1,9 @@
 ﻿{
   "version": "1.0.0",
-  "processorStorageConnectionString": "",
-  "processorStorageContainer": "",
-  "processorConnectionString": "",
-  "processorHub": "hub01",
+  "relayNamespace": "",
+  "relayConnectionName": "",
+  "relayKeyName": "",
+  "relayKey": "",
   "namespaceTopicEndpoint": "",
   "namespaceTopicEndpointAccessKey": "",
   "namespaceTopicName": "",

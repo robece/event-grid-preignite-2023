@@ -2,12 +2,12 @@
 using Azure.Core.Serialization;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid.Namespaces;
-using Azure.Messaging.EventHubs;
-using Azure.Messaging.EventHubs.Consumer;
-using Azure.Messaging.EventHubs.Processor;
-using Azure.Storage.Blobs;
+using Microsoft.Azure.Relay;
+using System.Diagnostics;
+using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Windows.Forms;
 
 namespace PushPull
 {
@@ -15,7 +15,6 @@ namespace PushPull
     {
         private Settings? _settings = null;
         private int _idxPublished = 0;
-        private EventProcessorClient? _eventProcessorClient;
         private int _lstViewFontSize = 17;
         private List<KeyValuePair<string, double>> elements = new List<KeyValuePair<string, double>>
             {
@@ -23,6 +22,9 @@ namespace PushPull
                 new KeyValuePair<string, double>("Released", 0.3),
                 new KeyValuePair<string, double>("Rejected", 0.2),
             };
+        private static readonly HttpClient client = new HttpClient();
+        private HybridConnectionListener? listener = null;
+        private HybridConnectionStream? stream = null;
 
         public frmPushPullWindow()
         {
@@ -31,25 +33,21 @@ namespace PushPull
             lblVersion.Text = $"Version: {_settings!.version}";
         }
 
-        private void frmPushPullWindow_Load(object sender, EventArgs e)
+        private async void frmPushPullWindow_Load(object sender, EventArgs e)
         {
             ImageList imgList = new ImageList();
             imgList.ImageSize = new Size(1, 80);
 
-            // Event Hub 
+            // Webhook
 
-            lstViewEventHub.View = View.Details;
-            lstViewEventHub.GridLines = true;
-            lstViewEventHub.FullRowSelect = true;
-            lstViewEventHub.Scrollable = true;
-            lstViewEventHub.Columns.Add("Event Data", 2500, HorizontalAlignment.Left);
-            lstViewEventHub.SmallImageList = imgList;
-
-            string storageConnectionString = _settings!.processorStorageConnectionString;
-            BlobContainerClient storageClient = new BlobContainerClient(storageConnectionString, _settings!.processorStorageContainer);
-            _eventProcessorClient = new EventProcessorClient(storageClient, EventHubConsumerClient.DefaultConsumerGroupName, _settings!.processorConnectionString, _settings!.processorHub);
-            _eventProcessorClient.ProcessEventAsync += ProcessEventHandler;
-            _eventProcessorClient.ProcessErrorAsync += ProcessErrorHandler;
+            lstViewWebhook.View = View.Details;
+            lstViewWebhook.GridLines = true;
+            lstViewWebhook.FullRowSelect = true;
+            lstViewWebhook.Scrollable = true;
+            lstViewWebhook.Columns.Add("Event State", 400, HorizontalAlignment.Left);
+            lstViewWebhook.Columns.Add("Time", 650, HorizontalAlignment.Left);
+            lstViewWebhook.Columns.Add("Data", 900, HorizontalAlignment.Left);
+            lstViewWebhook.SmallImageList = imgList;
 
             // Event Grid
 
@@ -57,11 +55,83 @@ namespace PushPull
             lstViewPull.GridLines = true;
             lstViewPull.FullRowSelect = true;
             lstViewPull.Scrollable = true;
-            lstViewPull.Columns.Add("Event State", 200, HorizontalAlignment.Left);
-            lstViewPull.Columns.Add("Time", 350, HorizontalAlignment.Left);
-            lstViewPull.Columns.Add("Data", 500, HorizontalAlignment.Left);
+            lstViewPull.Columns.Add("Event State", 400, HorizontalAlignment.Left);
+            lstViewPull.Columns.Add("Time", 650, HorizontalAlignment.Left);
+            lstViewPull.Columns.Add("Data", 900, HorizontalAlignment.Left);
             lstViewPull.SmallImageList = imgList;
 
+            await RunRelayAsync();
+        }
+
+        private async Task RunRelayAsync()
+        {
+            if (_settings == null)
+                return;
+
+            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_settings.relayKeyName, _settings.relayKey);
+            listener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings.relayNamespace, _settings.relayConnectionName)), tokenProvider);
+
+            // Subscribe to the status events.
+            listener.Connecting += (o, e) => { 
+                Console.WriteLine("Connecting"); 
+            };
+            
+            listener.Offline += (o, e) => { 
+                Console.WriteLine("Offline"); 
+            };
+            
+            listener.Online += (o, e) => { 
+                Console.WriteLine("Online");
+                MessageBox.Show("Listener online!");
+            };
+
+            // Provide an HTTP request handler
+            listener.RequestHandler = async (context) =>
+            {
+                if (context.Request.HttpMethod == "OPTIONS" && context.Request.Url.PathAndQuery == @"/hybridconn02/api/webhook")
+                {
+                    var callback = context.Request.Headers["WebHook-Request-Callback"];
+                    using HttpResponseMessage response = await client.GetAsync(callback);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(responseBody);
+
+                    context.Response.StatusCode = HttpStatusCode.OK;
+                    context.Response.StatusDescription = "OK";
+
+                    var origin = context.Request.Headers["Webhook-Request-Origin"];
+                    context.Response.Headers.Add("Webhook-Allowed-Origin", origin);
+                    using (var sw = new StreamWriter(context.Response.OutputStream))
+                    {
+                        sw.WriteLine("OK");
+                    }
+
+                    context.Response.Close();
+                }
+
+                if (context.Request.HttpMethod == "POST" && context.Request.Url.PathAndQuery == @"/hybridconn02/api/webhook")
+                {
+                    using (StreamReader reader = new StreamReader(context.Request.InputStream))
+                    {
+                        string data = await reader.ReadToEndAsync();
+                        var jsonBin = BinaryData.FromString(data);
+                        CloudEvent cloudEvent = CloudEvent.Parse(jsonBin)!;
+
+                        LstViewWebhookAddItemSafe("Delivered", cloudEvent.Time.ToString(), cloudEvent.Data!.ToString());
+                    }
+
+                    context.Response.StatusCode = HttpStatusCode.OK;
+                    context.Response.StatusDescription = "OK";
+                    context.Response.Close();
+                }
+            };
+
+            // Opening the listener establishes the control channel to
+            // the Azure Relay service. The control channel is continuously 
+            // maintained, and is reestablished when connectivity is disrupted.
+            await listener.OpenAsync();
+            
+            stream = await listener.AcceptConnectionAsync();
         }
 
         private void timerPublish_Tick(object sender, EventArgs e)
@@ -99,22 +169,40 @@ namespace PushPull
                 lblPublishedEvents.Text = text;
         }
 
-        private void LstViewEventHubAddItemSafe(string? dataPayload)
+        private void LstViewWebhookAddItemSafe(string? eventState, string? time, string? dataPayload)
         {
-            if (lstViewEventHub.InvokeRequired)
+            if (lstViewWebhook.InvokeRequired)
             {
-                lstViewEventHub.Invoke(new Action(() =>
+                lstViewWebhook.Invoke(new Action(() =>
                 {
-                    ListViewItem entryListItem = lstViewEventHub.Items.Insert(0, dataPayload);
+                    ListViewItem entryListItem = lstViewWebhook.Items.Insert(0, eventState);
                     entryListItem.UseItemStyleForSubItems = false;
-                    entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
+                    entryListItem.ForeColor = SelectForeColor(eventState);
+                    entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Bold);
+
+                    ListViewItem.ListViewSubItem subItem01 = entryListItem.SubItems.Add(time);
+                    subItem01.ForeColor = SelectForeColor(eventState);
+                    subItem01.Font = new Font(subItem01.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
+
+                    ListViewItem.ListViewSubItem subItem02 = entryListItem.SubItems.Add(dataPayload);
+                    subItem02.ForeColor = SelectForeColor(eventState);
+                    subItem02.Font = new Font(subItem02.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
                 }));
             }
             else
             {
-                ListViewItem entryListItem = lstViewEventHub.Items.Insert(0, dataPayload);
+                ListViewItem entryListItem = lstViewWebhook.Items.Insert(0, eventState);
                 entryListItem.UseItemStyleForSubItems = false;
-                entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
+                entryListItem.ForeColor = SelectForeColor(eventState);
+                entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Bold);
+
+                ListViewItem.ListViewSubItem subItem01 = entryListItem.SubItems.Add(time);
+                subItem01.ForeColor = SelectForeColor(eventState);
+                subItem01.Font = new Font(subItem01.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
+
+                ListViewItem.ListViewSubItem subItem02 = entryListItem.SubItems.Add(dataPayload);
+                subItem02.ForeColor = SelectForeColor(eventState);
+                subItem02.Font = new Font(subItem02.Font.FontFamily, _lstViewFontSize, FontStyle.Regular);
             }
         }
 
@@ -161,6 +249,7 @@ namespace PushPull
             {
                 case "Received":
                     return Color.Black;
+                case "Delivered":
                 case "Acknowledged":
                     return Color.Green;
                 case "Released":
@@ -196,7 +285,7 @@ namespace PushPull
 
                 CloudEvent cloudEvent = new CloudEvent("/source",
                     $"{strPrefix}{strSuffix}",
-                    myCustomDataSerializer.Serialize(new CustomModel() { Notification = $"{strPrefix}{strSuffix}" }), "application/json");
+                    myCustomDataSerializer.Serialize(new CustomModel() { Notification = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
 
                 await client.PublishCloudEventAsync("topic01", cloudEvent);
                 _idxPublished++;
@@ -209,41 +298,9 @@ namespace PushPull
             public string? Notification { get; set; }
         }
 
-        private async void btnStartEventHub_Click(object sender, EventArgs e)
-        {
-            await _eventProcessorClient!.StartProcessingAsync();
-            btnStartEventHub.Enabled = false;
-            btnStopEventHub.Enabled = true;
-        }
-
-        private async void btnStopEventHub_Click(object sender, EventArgs e)
-        {
-            await _eventProcessorClient!.StopProcessingAsync();
-            btnStartEventHub.Enabled = true;
-            btnStopEventHub.Enabled = false;
-        }
-
         private void btnClearEventHub_Click(object sender, EventArgs e)
         {
-            lstViewEventHub.Items.Clear();
-        }
-
-        private Task ProcessEventHandler(ProcessEventArgs eventArgs)
-        {
-            string json = Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray());
-
-            if (!json.ToLower().Contains("locktoken"))
-                LstViewEventHubAddItemSafe(json);
-
-            return Task.CompletedTask;
-        }
-
-        private Task ProcessErrorHandler(ProcessErrorEventArgs eventArgs)
-        {
-            Console.WriteLine($"\tPartition '{eventArgs.PartitionId}': an unhandled exception was encountered. This was not expected to happen.");
-            Console.WriteLine(eventArgs.Exception.Message);
-            Console.ReadLine();
-            return Task.CompletedTask;
+            lstViewWebhook.Items.Clear();
         }
 
         private async void timerPull_Tick(object sender, EventArgs e)
@@ -269,11 +326,15 @@ namespace PushPull
 
                     string eventState = RandomizeEventState();
 
+                    AcknowledgeOptions acknowledgeOptions = new AcknowledgeOptions(lockTokens);
+                    ReleaseOptions releaseOptions = new ReleaseOptions(lockTokens);
+                    RejectOptions rejectOptions = new RejectOptions(lockTokens);
+
                     switch (eventState)
                     {
                         case "Acknowledged":
 
-                            AcknowledgeResult acknowledgeResult = await client.AcknowledgeCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, lockTokens);
+                            AcknowledgeResult acknowledgeResult = await client.AcknowledgeCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, acknowledgeOptions);
 
                             if (acknowledgeResult.SucceededLockTokens.Count > 0)
                                 LstViewPullAddItemSafe("Acknowledged", $"{item.Event.Time}", $"{strData}");
@@ -282,7 +343,7 @@ namespace PushPull
 
                         case "Released":
 
-                            ReleaseResult releaseResult = await client.ReleaseCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, lockTokens);
+                            ReleaseResult releaseResult = await client.ReleaseCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, releaseOptions);
 
                             if (releaseResult.SucceededLockTokens.Count > 0)
                                 LstViewPullAddItemSafe("Released", $"{item.Event.Time}", $"{strData}");
@@ -291,7 +352,7 @@ namespace PushPull
 
                         case "Rejected":
 
-                            RejectResult rejectResult = await client.RejectCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, lockTokens);
+                            RejectResult rejectResult = await client.RejectCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, rejectOptions);
 
                             if (rejectResult.SucceededLockTokens.Count > 0)
                                 LstViewPullAddItemSafe("Rejected", $"{item.Event.Time}", $"{strData}");
@@ -335,6 +396,23 @@ namespace PushPull
         private void btnClearPull_Click(object sender, EventArgs e)
         {
             lstViewPull.Items.Clear();
+        }
+
+        private void btnArchitecture_Click(object sender, EventArgs e)
+        {
+            frmArchitecture frmArchitecture = new frmArchitecture();
+
+            DialogResult result = frmArchitecture.ShowDialog();
+            if (frmArchitecture != null)
+            {
+                frmArchitecture.Dispose();
+            }
+        }
+
+        private async void frmPushPullWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //await stream.CloseAsync(new CancellationToken());
+            await listener.CloseAsync();
         }
     }
 }

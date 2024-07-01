@@ -1,9 +1,9 @@
 ﻿{
   "version": "1.0.0",
-  "mqttEndpoint": "",
-  "mqttPort": ,
-  "clientId": "",
-  "mqttBrokertopic": "",
+  "mqttEndpoint": "robece-preignite2023.centraluseuap-1.ts.eventgrid.azure.net",
+  "mqttPort": 1883,
+  "clientId": "sensor01",
+  "mqttBrokertopic": "sensors/+/temperature",
   "rootCertificateFileName": "",
   "clientCertificateFileName": "",
   "clientCertificateKeyFileName": ""

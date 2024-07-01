@@ -41,10 +41,8 @@
             lblPublishedEvents = new Label();
             label3 = new Label();
             btnClearPublish = new Button();
-            lstViewEventHub = new ListView();
+            lstViewWebhook = new ListView();
             label2 = new Label();
-            btnStartEventHub = new Button();
-            btnStopEventHub = new Button();
             btnClearEventHub = new Button();
             label4 = new Label();
             lstViewPull = new ListView();
@@ -52,6 +50,7 @@
             timerPull = new System.Windows.Forms.Timer(components);
             btnStopPull = new Button();
             btnClearPull = new Button();
+            btnArchitecture = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             statusStrip.SuspendLayout();
             SuspendLayout();
@@ -60,19 +59,22 @@
             // 
             pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(1847, 61);
+            pictureBox1.Location = new Point(3430, 130);
+            pictureBox1.Margin = new Padding(6);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(46, 46);
+            pictureBox1.Size = new Size(85, 98);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
             // 
             // statusStrip
             // 
+            statusStrip.ImageScalingSize = new Size(32, 32);
             statusStrip.Items.AddRange(new ToolStripItem[] { lblVersion });
-            statusStrip.Location = new Point(0, 940);
+            statusStrip.Location = new Point(0, 1794);
             statusStrip.Name = "statusStrip";
-            statusStrip.Size = new Size(1924, 22);
+            statusStrip.Padding = new Padding(2, 0, 26, 0);
+            statusStrip.Size = new Size(3573, 22);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "statusStrip1";
             // 
@@ -81,32 +83,35 @@
             lblVersion.BackColor = SystemColors.Control;
             lblVersion.ForeColor = Color.SlateGray;
             lblVersion.Name = "lblVersion";
-            lblVersion.Size = new Size(0, 17);
+            lblVersion.Size = new Size(0, 12);
             // 
             // progressBarPublish
             // 
             progressBarPublish.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            progressBarPublish.Location = new Point(31, 61);
+            progressBarPublish.Location = new Point(58, 130);
+            progressBarPublish.Margin = new Padding(6);
             progressBarPublish.Name = "progressBarPublish";
-            progressBarPublish.Size = new Size(1810, 46);
+            progressBarPublish.Size = new Size(3361, 98);
             progressBarPublish.TabIndex = 4;
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point);
-            label1.Location = new Point(31, 20);
+            label1.Location = new Point(58, 43);
+            label1.Margin = new Padding(6, 0, 6, 0);
             label1.Name = "label1";
-            label1.Size = new Size(280, 28);
+            label1.Size = new Size(674, 54);
             label1.TabIndex = 5;
-            label1.Text = "Publish events to Event Grid";
+            label1.Text = "Publish events to Azure Event Grid";
             // 
             // btnStartPublish
             // 
             btnStartPublish.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStartPublish.Location = new Point(29, 113);
+            btnStartPublish.Location = new Point(54, 241);
+            btnStartPublish.Margin = new Padding(6);
             btnStartPublish.Name = "btnStartPublish";
-            btnStartPublish.Size = new Size(150, 46);
+            btnStartPublish.Size = new Size(279, 98);
             btnStartPublish.TabIndex = 6;
             btnStartPublish.Text = "Start";
             btnStartPublish.UseVisualStyleBackColor = true;
@@ -116,9 +121,10 @@
             // 
             btnStopPublish.Enabled = false;
             btnStopPublish.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStopPublish.Location = new Point(185, 113);
+            btnStopPublish.Location = new Point(344, 241);
+            btnStopPublish.Margin = new Padding(6);
             btnStopPublish.Name = "btnStopPublish";
-            btnStopPublish.Size = new Size(150, 46);
+            btnStopPublish.Size = new Size(279, 98);
             btnStopPublish.TabIndex = 7;
             btnStopPublish.Text = "Stop";
             btnStopPublish.UseVisualStyleBackColor = true;
@@ -133,11 +139,12 @@
             // 
             lblPublishedEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblPublishedEvents.AutoSize = true;
-            lblPublishedEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point);
+            lblPublishedEvents.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
             lblPublishedEvents.ForeColor = Color.DarkGreen;
-            lblPublishedEvents.Location = new Point(1847, 20);
+            lblPublishedEvents.Location = new Point(3442, 56);
+            lblPublishedEvents.Margin = new Padding(6, 0, 6, 0);
             lblPublishedEvents.Name = "lblPublishedEvents";
-            lblPublishedEvents.Size = new Size(24, 28);
+            lblPublishedEvents.Size = new Size(45, 54);
             lblPublishedEvents.TabIndex = 8;
             lblPublishedEvents.Text = "0";
             // 
@@ -145,76 +152,56 @@
             // 
             label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point);
+            label3.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
             label3.ForeColor = Color.DarkGreen;
-            label3.Location = new Point(1664, 20);
+            label3.Location = new Point(3116, 56);
+            label3.Margin = new Padding(6, 0, 6, 0);
             label3.Name = "label3";
-            label3.Size = new Size(177, 28);
+            label3.Size = new Size(331, 54);
             label3.TabIndex = 9;
             label3.Text = "Published Events:";
             // 
             // btnClearPublish
             // 
             btnClearPublish.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnClearPublish.Location = new Point(341, 113);
+            btnClearPublish.Location = new Point(633, 241);
+            btnClearPublish.Margin = new Padding(6);
             btnClearPublish.Name = "btnClearPublish";
-            btnClearPublish.Size = new Size(150, 46);
+            btnClearPublish.Size = new Size(279, 98);
             btnClearPublish.TabIndex = 10;
             btnClearPublish.Text = "Clear";
             btnClearPublish.UseVisualStyleBackColor = true;
             btnClearPublish.Click += btnPublishClear_Click;
             // 
-            // lstViewEventHub
+            // lstViewWebhook
             // 
-            lstViewEventHub.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lstViewEventHub.Location = new Point(31, 220);
-            lstViewEventHub.Name = "lstViewEventHub";
-            lstViewEventHub.Size = new Size(919, 654);
-            lstViewEventHub.TabIndex = 11;
-            lstViewEventHub.UseCompatibleStateImageBehavior = false;
+            lstViewWebhook.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lstViewWebhook.Location = new Point(58, 548);
+            lstViewWebhook.Margin = new Padding(6);
+            lstViewWebhook.Name = "lstViewWebhook";
+            lstViewWebhook.Size = new Size(3454, 516);
+            lstViewWebhook.TabIndex = 11;
+            lstViewWebhook.UseCompatibleStateImageBehavior = false;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point);
-            label2.Location = new Point(31, 176);
+            label2.Location = new Point(58, 460);
+            label2.Margin = new Padding(6, 0, 6, 0);
             label2.Name = "label2";
-            label2.Size = new Size(309, 28);
+            label2.Size = new Size(1079, 54);
             label2.TabIndex = 12;
-            label2.Text = "Push subscription to Event Hub";
-            // 
-            // btnStartEventHub
-            // 
-            btnStartEventHub.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnStartEventHub.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStartEventHub.Location = new Point(31, 880);
-            btnStartEventHub.Name = "btnStartEventHub";
-            btnStartEventHub.Size = new Size(150, 46);
-            btnStartEventHub.TabIndex = 13;
-            btnStartEventHub.Text = "Start";
-            btnStartEventHub.UseVisualStyleBackColor = true;
-            btnStartEventHub.Click += btnStartEventHub_Click;
-            // 
-            // btnStopEventHub
-            // 
-            btnStopEventHub.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnStopEventHub.Enabled = false;
-            btnStopEventHub.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStopEventHub.Location = new Point(187, 880);
-            btnStopEventHub.Name = "btnStopEventHub";
-            btnStopEventHub.Size = new Size(150, 46);
-            btnStopEventHub.TabIndex = 14;
-            btnStopEventHub.Text = "Stop";
-            btnStopEventHub.UseVisualStyleBackColor = true;
-            btnStopEventHub.Click += btnStopEventHub_Click;
+            label2.Text = "Push delivery to On-Premise Webhook with Azure Relay";
             // 
             // btnClearEventHub
             // 
-            btnClearEventHub.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnClearEventHub.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearEventHub.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnClearEventHub.Location = new Point(343, 880);
+            btnClearEventHub.Location = new Point(3233, 438);
+            btnClearEventHub.Margin = new Padding(6);
             btnClearEventHub.Name = "btnClearEventHub";
-            btnClearEventHub.Size = new Size(150, 46);
+            btnClearEventHub.Size = new Size(279, 98);
             btnClearEventHub.TabIndex = 15;
             btnClearEventHub.Text = "Clear";
             btnClearEventHub.UseVisualStyleBackColor = true;
@@ -222,31 +209,33 @@
             // 
             // label4
             // 
-            label4.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point);
-            label4.Location = new Point(956, 176);
+            label4.Location = new Point(58, 1116);
+            label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
-            label4.Size = new Size(492, 28);
+            label4.Size = new Size(697, 54);
             label4.TabIndex = 16;
-            label4.Text = "Pull subscription from Event Grid namespace topic";
+            label4.Text = "Pull delivery from Namespace topic";
             // 
             // lstViewPull
             // 
-            lstViewPull.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            lstViewPull.Location = new Point(956, 220);
+            lstViewPull.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lstViewPull.Location = new Point(58, 1204);
+            lstViewPull.Margin = new Padding(6);
             lstViewPull.Name = "lstViewPull";
-            lstViewPull.Size = new Size(937, 654);
+            lstViewPull.Size = new Size(3454, 516);
             lstViewPull.TabIndex = 17;
             lstViewPull.UseCompatibleStateImageBehavior = false;
             // 
             // btnStartPull
             // 
-            btnStartPull.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnStartPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnStartPull.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStartPull.Location = new Point(1431, 880);
+            btnStartPull.Location = new Point(2654, 1094);
+            btnStartPull.Margin = new Padding(6);
             btnStartPull.Name = "btnStartPull";
-            btnStartPull.Size = new Size(150, 46);
+            btnStartPull.Size = new Size(279, 98);
             btnStartPull.TabIndex = 18;
             btnStartPull.Text = "Start";
             btnStartPull.UseVisualStyleBackColor = true;
@@ -259,12 +248,13 @@
             // 
             // btnStopPull
             // 
-            btnStopPull.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnStopPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnStopPull.Enabled = false;
             btnStopPull.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnStopPull.Location = new Point(1587, 880);
+            btnStopPull.Location = new Point(2945, 1094);
+            btnStopPull.Margin = new Padding(6);
             btnStopPull.Name = "btnStopPull";
-            btnStopPull.Size = new Size(150, 46);
+            btnStopPull.Size = new Size(279, 98);
             btnStopPull.TabIndex = 19;
             btnStopPull.Text = "Stop";
             btnStopPull.UseVisualStyleBackColor = true;
@@ -272,32 +262,45 @@
             // 
             // btnClearPull
             // 
-            btnClearPull.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnClearPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearPull.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
-            btnClearPull.Location = new Point(1743, 880);
+            btnClearPull.Location = new Point(3236, 1094);
+            btnClearPull.Margin = new Padding(6);
             btnClearPull.Name = "btnClearPull";
-            btnClearPull.Size = new Size(150, 46);
+            btnClearPull.Size = new Size(279, 98);
             btnClearPull.TabIndex = 20;
             btnClearPull.Text = "Clear";
             btnClearPull.UseVisualStyleBackColor = true;
             btnClearPull.Click += btnClearPull_Click;
             // 
+            // btnArchitecture
+            // 
+            btnArchitecture.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnArchitecture.Font = new Font("Segoe UI", 15F, FontStyle.Regular, GraphicsUnit.Point);
+            btnArchitecture.Location = new Point(2945, 241);
+            btnArchitecture.Margin = new Padding(6);
+            btnArchitecture.Name = "btnArchitecture";
+            btnArchitecture.Size = new Size(573, 98);
+            btnArchitecture.TabIndex = 21;
+            btnArchitecture.Text = "Architecture Diagram";
+            btnArchitecture.UseVisualStyleBackColor = true;
+            btnArchitecture.Click += btnArchitecture_Click;
+            // 
             // frmPushPullWindow
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1924, 962);
+            ClientSize = new Size(3573, 1816);
+            Controls.Add(btnArchitecture);
             Controls.Add(btnClearPull);
             Controls.Add(btnStopPull);
             Controls.Add(btnStartPull);
             Controls.Add(lstViewPull);
             Controls.Add(label4);
             Controls.Add(btnClearEventHub);
-            Controls.Add(btnStopEventHub);
-            Controls.Add(btnStartEventHub);
             Controls.Add(label2);
-            Controls.Add(lstViewEventHub);
+            Controls.Add(lstViewWebhook);
             Controls.Add(btnClearPublish);
             Controls.Add(label3);
             Controls.Add(lblPublishedEvents);
@@ -307,9 +310,11 @@
             Controls.Add(progressBarPublish);
             Controls.Add(statusStrip);
             Controls.Add(pictureBox1);
+            Margin = new Padding(6);
             Name = "frmPushPullWindow";
-            Text = "Push and Pull Delivery";
+            Text = "Azure Event Grid Standard Delivery Using Push and Pull";
             WindowState = FormWindowState.Maximized;
+            FormClosing += frmPushPullWindow_FormClosing;
             Load += frmPushPullWindow_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             statusStrip.ResumeLayout(false);
@@ -329,10 +334,8 @@
         private Label lblPublishedEvents;
         private Label label3;
         private Button btnClearPublish;
-        private ListView lstViewEventHub;
+        private ListView lstViewWebhook;
         private Label label2;
-        private Button btnStartEventHub;
-        private Button btnStopEventHub;
         private Button btnClearEventHub;
         private Label label4;
         private ListView lstViewPull;
@@ -341,5 +344,6 @@
         private Button btnStopPull;
         private Button btnClearPull;
         private ToolStripStatusLabel lblVersion;
+        private Button btnArchitecture;
     }
 }
