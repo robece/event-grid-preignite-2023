@@ -8,6 +8,7 @@ using Microsoft.Azure.Relay;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Namespace.PushPull
 {
@@ -135,6 +136,8 @@ namespace Namespace.PushPull
                         if (rdbCustomEvents.Checked)
                         {
                             strData = @event.Data!.ToString();
+                            dynamic data = JObject.Parse(strData);
+                            strData = $"NotificationType: {data.notificationType}";
                         }
                         else
                         {
@@ -323,7 +326,7 @@ namespace Namespace.PushPull
 
                 CloudEvent cloudEvent = new CloudEvent("/source",
                     $"{strPrefix}{strSuffix}",
-                    myCustomDataSerializer.Serialize(new CustomModel() { Notification = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
+                    myCustomDataSerializer.Serialize(new CustomModel() { NotificationType = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
 
                 await senderClient.SendAsync(cloudEvent);
                 _idxPublished++;
@@ -364,7 +367,7 @@ namespace Namespace.PushPull
 
         private class CustomModel
         {
-            public string? Notification { get; set; }
+            public string? NotificationType { get; set; }
         }
 
         private void btnClearEventHub_Click(object sender, EventArgs e)
@@ -393,6 +396,8 @@ namespace Namespace.PushPull
                     if (rdbCustomEvents.Checked)
                     {
                         strData = @event.Data!.ToString();
+                        dynamic data = JObject.Parse(strData);
+                        strData = $"NotificationType: {data.notificationType}";
                     }
                     else
                     {
