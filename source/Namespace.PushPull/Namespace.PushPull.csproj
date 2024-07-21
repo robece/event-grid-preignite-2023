@@ -9,12 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventGrid" Version="4.22.0-beta.1" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.0-beta.1" />
+    <PackageReference Include="Azure.Messaging.EventGrid.Namespaces" Version="1.0.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.0" />
     <PackageReference Include="Microsoft.Azure.Relay" Version="3.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="frmSystemEventsDiagram.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -30,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PushPull.settings.json">
+    <None Update="Namespace.PushPull.settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

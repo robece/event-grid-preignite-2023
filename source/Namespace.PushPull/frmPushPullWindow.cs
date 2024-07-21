@@ -2,14 +2,14 @@
 using Azure.Core.Serialization;
 using Azure.Messaging;
 using Azure.Messaging.EventGrid.Namespaces;
+using Azure.Storage;
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Relay;
-using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 using System.Net;
-using System.Text;
 using System.Text.Json;
-using System.Windows.Forms;
 
-namespace PushPull
+namespace Namespace.PushPull
 {
     public partial class frmPushPullWindow : Form
     {
@@ -35,8 +35,19 @@ namespace PushPull
 
         private async void frmPushPullWindow_Load(object sender, EventArgs e)
         {
+            InitTable();
+            await RunRelayAsync();
+        }
+
+        private void InitTable()
+        {
             ImageList imgList = new ImageList();
             imgList.ImageSize = new Size(1, 80);
+
+            var dataSize = (rdbCustomEvents.Checked ? 1200 : 3500);
+
+            lstViewWebhook.Clear();
+            lstViewPull.Clear();
 
             // Webhook
 
@@ -46,7 +57,7 @@ namespace PushPull
             lstViewWebhook.Scrollable = true;
             lstViewWebhook.Columns.Add("Event State", 400, HorizontalAlignment.Left);
             lstViewWebhook.Columns.Add("Time", 650, HorizontalAlignment.Left);
-            lstViewWebhook.Columns.Add("Data", 900, HorizontalAlignment.Left);
+            lstViewWebhook.Columns.Add("Data", dataSize, HorizontalAlignment.Left);
             lstViewWebhook.SmallImageList = imgList;
 
             // Event Grid
@@ -57,10 +68,8 @@ namespace PushPull
             lstViewPull.Scrollable = true;
             lstViewPull.Columns.Add("Event State", 400, HorizontalAlignment.Left);
             lstViewPull.Columns.Add("Time", 650, HorizontalAlignment.Left);
-            lstViewPull.Columns.Add("Data", 900, HorizontalAlignment.Left);
+            lstViewPull.Columns.Add("Data", dataSize, HorizontalAlignment.Left);
             lstViewPull.SmallImageList = imgList;
-
-            await RunRelayAsync();
         }
 
         private async Task RunRelayAsync()
@@ -72,17 +81,22 @@ namespace PushPull
             listener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings.relayNamespace, _settings.relayConnectionName)), tokenProvider);
 
             // Subscribe to the status events.
-            listener.Connecting += (o, e) => { 
-                Console.WriteLine("Connecting"); 
+            listener.Connecting += (o, e) =>
+            {
+                Console.WriteLine("Connecting");
+                lblListener.Text = "Listener connecting!";
             };
-            
-            listener.Offline += (o, e) => { 
-                Console.WriteLine("Offline"); 
+
+            listener.Offline += (o, e) =>
+            {
+                Console.WriteLine("Offline");
+                lblListener.Text = "Listener offline!";
             };
-            
-            listener.Online += (o, e) => { 
+
+            listener.Online += (o, e) =>
+            {
                 Console.WriteLine("Online");
-                MessageBox.Show("Listener online!");
+                lblListener.Text = "Listener online!";
             };
 
             // Provide an HTTP request handler
@@ -113,11 +127,23 @@ namespace PushPull
                 {
                     using (StreamReader reader = new StreamReader(context.Request.InputStream))
                     {
-                        string data = await reader.ReadToEndAsync();
-                        var jsonBin = BinaryData.FromString(data);
-                        CloudEvent cloudEvent = CloudEvent.Parse(jsonBin)!;
+                        string jsonData = await reader.ReadToEndAsync();
+                        var jsonBin = BinaryData.FromString(jsonData);
+                        CloudEvent @event = CloudEvent.Parse(jsonBin)!;
 
-                        LstViewWebhookAddItemSafe("Delivered", cloudEvent.Time.ToString(), cloudEvent.Data!.ToString());
+                        string strData = string.Empty;
+                        if (rdbCustomEvents.Checked)
+                        {
+                            strData = @event.Data!.ToString();
+                        }
+                        else
+                        {
+                            strData = @event.Data!.ToString();
+                            dynamic data = JObject.Parse(strData);
+                            strData = $"EventType: {@event.Type}, Url: {data.url}";
+                        }
+
+                        LstViewWebhookAddItemSafe("Delivered", @event.Time.ToString(), strData);
                     }
 
                     context.Response.StatusCode = HttpStatusCode.OK;
@@ -130,13 +156,20 @@ namespace PushPull
             // the Azure Relay service. The control channel is continuously 
             // maintained, and is reestablished when connectivity is disrupted.
             await listener.OpenAsync();
-            
+
             stream = await listener.AcceptConnectionAsync();
         }
 
         private void timerPublish_Tick(object sender, EventArgs e)
         {
-            SendAsync();
+            if (rdbCustomEvents.Checked)
+            {
+                SendCustomEventsAsync();
+            }
+            else
+            {
+                SendBlobFilesAsync();
+            }
         }
 
         private void btnPublishStart_Click(object sender, EventArgs e)
@@ -144,6 +177,8 @@ namespace PushPull
             timerPublish.Start();
             btnStartPublish.Enabled = false;
             btnStopPublish.Enabled = true;
+            rdbCustomEvents.Enabled = false;
+            rdbSystemEvents.Enabled = false;
             progressBarPublish.Style = ProgressBarStyle.Marquee;
         }
 
@@ -152,6 +187,8 @@ namespace PushPull
             timerPublish.Stop();
             btnStartPublish.Enabled = true;
             btnStopPublish.Enabled = false;
+            rdbCustomEvents.Enabled = true;
+            rdbSystemEvents.Enabled = true;
             progressBarPublish.Style = ProgressBarStyle.Blocks;
         }
 
@@ -250,6 +287,7 @@ namespace PushPull
                 case "Received":
                     return Color.Black;
                 case "Delivered":
+                    return Color.DarkGoldenrod;
                 case "Acknowledged":
                     return Color.Green;
                 case "Released":
@@ -261,7 +299,7 @@ namespace PushPull
             }
         }
 
-        private async void SendAsync()
+        private async void SendCustomEventsAsync()
         {
             await Task.Factory.StartNew(async () =>
             {
@@ -271,7 +309,7 @@ namespace PushPull
                 string topicAccessKey = _settings!.namespaceTopicEndpointAccessKey;
 
                 var keyCredential = new AzureKeyCredential(topicAccessKey);
-                EventGridClient client = new EventGridClient(new Uri(topicEndpoint), keyCredential);
+                var senderClient = new EventGridSenderClient(new Uri(topicEndpoint), _settings!.namespaceTopicName, keyCredential);
 
                 Random rnd = new Random();
 
@@ -287,7 +325,38 @@ namespace PushPull
                     $"{strPrefix}{strSuffix}",
                     myCustomDataSerializer.Serialize(new CustomModel() { Notification = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
 
-                await client.PublishCloudEventAsync("topic01", cloudEvent);
+                await senderClient.SendAsync(cloudEvent);
+                _idxPublished++;
+                LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+            });
+        }
+
+        private async void SendBlobFilesAsync()
+        {
+            await Task.Factory.StartNew(async () =>
+            {
+                var blobServiceClient = new BlobServiceClient(new Uri(_settings!.storageAccountUri), new StorageSharedKeyCredential(_settings!.storageAccountName, _settings!.storageAccountKey));
+                string containerName = _settings!.storageAccountContainerName;
+
+                var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+
+                bool isExist = containerClient.Exists();
+                if (!isExist)
+                    containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+
+                string localPath = "data";
+                Directory.CreateDirectory(localPath);
+                string fileName = "quickstart" + Guid.NewGuid().ToString() + ".txt";
+                string localFilePath = Path.Combine(localPath, fileName);
+                await File.WriteAllTextAsync(localFilePath, "Hello, World!");
+
+                BlobClient blobClient = containerClient.GetBlobClient(fileName);
+                await blobClient.UploadAsync(localFilePath, true);
+                _idxPublished++;
+                LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+
+                await blobClient.DeleteAsync();
+                File.Delete(localFilePath);
                 _idxPublished++;
                 LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
             });
@@ -311,51 +380,64 @@ namespace PushPull
                 string topicAccessKey = _settings!.namespaceTopicEndpointAccessKey;
 
                 var keyCredential = new AzureKeyCredential(topicAccessKey);
-                EventGridClient client = new EventGridClient(new Uri(topicEndpoint), keyCredential);
+                var receiverClient = new EventGridReceiverClient(new Uri(topicEndpoint), _settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, keyCredential);
 
-                ReceiveResult receiveResult = await client.ReceiveCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, _settings!.namespaceTopicSubscriptionMaxEvents);
-                var list = receiveResult.Value.ToList();
+                ReceiveResult receiveResult = await receiverClient.ReceiveAsync(_settings!.namespaceTopicSubscriptionMaxEvents);
 
-                foreach (var item in list)
+                foreach (ReceiveDetails detail in receiveResult.Details)
                 {
-                    string strData = item.Event.Data!.ToString();
-                    LstViewPullAddItemSafe("Received", $"{item.Event.Time}", $"{strData}");
+                    CloudEvent @event = detail.Event;
+                    BrokerProperties brokerProperties = detail.BrokerProperties;
 
-                    List<string> lockTokens = new List<string>();
-                    lockTokens.Add(item.BrokerProperties.LockToken);
+                    string strData = string.Empty;
+                    if (rdbCustomEvents.Checked)
+                    {
+                        strData = @event.Data!.ToString();
+                    }
+                    else
+                    {
+                        strData = @event.Data!.ToString();
+                        dynamic data = JObject.Parse(strData);
+                        strData = $"EventType: {@event.Type}, Url: {data.url}";
+                    }
+
+                    LstViewPullAddItemSafe("Received", $"{@event.Time}", $"{strData}");
 
                     string eventState = RandomizeEventState();
 
-                    AcknowledgeOptions acknowledgeOptions = new AcknowledgeOptions(lockTokens);
-                    ReleaseOptions releaseOptions = new ReleaseOptions(lockTokens);
-                    RejectOptions rejectOptions = new RejectOptions(lockTokens);
+                    var toRelease = new List<string>();
+                    var toAcknowledge = new List<string>();
+                    var toReject = new List<string>();
 
                     switch (eventState)
                     {
                         case "Acknowledged":
 
-                            AcknowledgeResult acknowledgeResult = await client.AcknowledgeCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, acknowledgeOptions);
+                            toAcknowledge.Add(brokerProperties.LockToken);
+                            AcknowledgeResult acknowledgeResult = await receiverClient.AcknowledgeAsync(toAcknowledge);
 
                             if (acknowledgeResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Acknowledged", $"{item.Event.Time}", $"{strData}");
+                                LstViewPullAddItemSafe("Acknowledged", $"{@event.Time}", $"{strData}");
 
                             break;
 
                         case "Released":
 
-                            ReleaseResult releaseResult = await client.ReleaseCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, releaseOptions);
+                            toRelease.Add(brokerProperties.LockToken);
+                            ReleaseResult releaseResult = await receiverClient.ReleaseAsync(toRelease);
 
                             if (releaseResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Released", $"{item.Event.Time}", $"{strData}");
+                                LstViewPullAddItemSafe("Released", $"{@event.Time}", $"{strData}");
 
                             break;
 
                         case "Rejected":
 
-                            RejectResult rejectResult = await client.RejectCloudEventsAsync(_settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, rejectOptions);
+                            toReject.Add(brokerProperties.LockToken);
+                            RejectResult rejectResult = await receiverClient.RejectAsync(toReject);
 
                             if (rejectResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Rejected", $"{item.Event.Time}", $"{strData}");
+                                LstViewPullAddItemSafe("Rejected", $"{@event.Time}", $"{strData}");
 
                             break;
                     }
@@ -400,12 +482,25 @@ namespace PushPull
 
         private void btnArchitecture_Click(object sender, EventArgs e)
         {
-            frmArchitecture frmArchitecture = new frmArchitecture();
-
-            DialogResult result = frmArchitecture.ShowDialog();
-            if (frmArchitecture != null)
+            if (rdbCustomEvents.Checked)
             {
-                frmArchitecture.Dispose();
+                frmCustomEventsDiagram frmDiagram = new frmCustomEventsDiagram();
+
+                DialogResult result = frmDiagram.ShowDialog();
+                if (frmDiagram != null)
+                {
+                    frmDiagram.Dispose();
+                }
+            }
+            else
+            {
+                frmSystemEventsDiagram frmDiagram = new frmSystemEventsDiagram();
+
+                DialogResult result = frmDiagram.ShowDialog();
+                if (frmDiagram != null)
+                {
+                    frmDiagram.Dispose();
+                }
             }
         }
 
@@ -413,6 +508,24 @@ namespace PushPull
         {
             //await stream.CloseAsync(new CancellationToken());
             await listener.CloseAsync();
+        }
+
+        private void rdbCustomEvents_CheckedChanged(object sender, EventArgs e)
+        {
+            lblPublish.Text = "Publish custom events to Azure Event Grid Namespace";
+            pbCustomEvents.Visible = true;
+            pbStorageEvents.Visible = false;
+
+            InitTable();
+        }
+
+        private void rdbSystemEvents_CheckedChanged(object sender, EventArgs e)
+        {
+            lblPublish.Text = "Publish Azure system events to Azure Event Grid Namespace";
+            pbCustomEvents.Visible = false;
+            pbStorageEvents.Visible = true;
+
+            InitTable();
         }
     }
 }

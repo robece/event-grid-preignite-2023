@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace PushPull
+namespace Namespace.PushPull
 {
     internal class Utils
     {
@@ -8,7 +8,7 @@ namespace PushPull
         {
             try
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "PushPull.settings.json");
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Namespace.PushPull.settings.json");
                 string strSettings = File.ReadAllText(filePath);
                 if (string.IsNullOrEmpty(strSettings))
                     return null;

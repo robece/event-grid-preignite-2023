@@ -1,4 +1,4 @@
-namespace PushPull
+namespace Namespace.PushPull
 {
     internal static class Program
     {

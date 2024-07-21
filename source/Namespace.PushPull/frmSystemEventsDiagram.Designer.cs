@@ -1,6 +1,6 @@
-﻿namespace PushPull
+﻿namespace Namespace.PushPull
 {
-    partial class frmArchitecture
+    partial class frmSystemEventsDiagram
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmArchitecture));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSystemEventsDiagram));
             pictureBox1 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -36,26 +36,26 @@
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(15, 14);
+            pictureBox1.Location = new Point(15, 15);
             pictureBox1.Margin = new Padding(6);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(1616, 592);
+            pictureBox1.Size = new Size(2804, 911);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 2;
             pictureBox1.TabStop = false;
             // 
-            // frmArchitecture
+            // frmSystemEventsDiagram
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1644, 617);
+            ClientSize = new Size(2828, 939);
             Controls.Add(pictureBox1);
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "frmArchitecture";
+            Name = "frmSystemEventsDiagram";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Architecture Diagram";
+            Text = "Diagram";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }

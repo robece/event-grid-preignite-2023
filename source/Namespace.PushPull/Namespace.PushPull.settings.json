@@ -8,5 +8,9 @@
   "namespaceTopicEndpointAccessKey": "",
   "namespaceTopicName": "",
   "namespaceTopicSubscriptionName": "",
-  "namespaceTopicSubscriptionMaxEvents": 
+  "namespaceTopicSubscriptionMaxEvents": 0,
+  "storageAccountUri": "",
+  "storageAccountName": "",
+  "storageAccountKey": "",
+  "storageAccountContainerName": ""
 }
