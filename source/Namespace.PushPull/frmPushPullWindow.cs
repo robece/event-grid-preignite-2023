@@ -8,7 +8,6 @@ using Microsoft.Azure.Relay;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Namespace.PushPull
 {
@@ -23,7 +22,7 @@ namespace Namespace.PushPull
                 new KeyValuePair<string, double>("Released", 0.3),
                 new KeyValuePair<string, double>("Rejected", 0.2),
             };
-        private static readonly HttpClient client = new HttpClient();
+        //private static readonly HttpClient httpClient = new HttpClient();
         private HybridConnectionListener? listener = null;
         private HybridConnectionStream? stream = null;
 
@@ -78,8 +77,8 @@ namespace Namespace.PushPull
             if (_settings == null)
                 return;
 
-            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_settings.relayKeyName, _settings.relayKey);
-            listener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings.relayNamespace, _settings.relayConnectionName)), tokenProvider);
+            var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_settings!.relayKeyName, _settings!.relayKey);
+            listener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings!.relayNamespace, _settings!.relayConnectionName)), tokenProvider);
 
             // Subscribe to the status events.
             listener.Connecting += (o, e) =>
@@ -103,14 +102,13 @@ namespace Namespace.PushPull
             // Provide an HTTP request handler
             listener.RequestHandler = async (context) =>
             {
-                if (context.Request.HttpMethod == "OPTIONS" && context.Request.Url.PathAndQuery == @"/hybridconn02/api/webhook")
+                if (context.Request.HttpMethod == "OPTIONS" && context.Request.Url.PathAndQuery == _settings!.relayWebhookPath)
                 {
-                    var callback = context.Request.Headers["WebHook-Request-Callback"];
-                    using HttpResponseMessage response = await client.GetAsync(callback);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(responseBody);
-
+                    //var callback = context.Request.Headers["WebHook-Request-Callback"];
+                    //using HttpResponseMessage response = await httpClient.GetAsync(callback);
+                    //response.EnsureSuccessStatusCode();
+                    //string responseBody = await response.Content.ReadAsStringAsync();
+                    
                     context.Response.StatusCode = HttpStatusCode.OK;
                     context.Response.StatusDescription = "OK";
 
@@ -124,7 +122,7 @@ namespace Namespace.PushPull
                     context.Response.Close();
                 }
 
-                if (context.Request.HttpMethod == "POST" && context.Request.Url.PathAndQuery == @"/hybridconn02/api/webhook")
+                if (context.Request.HttpMethod == "POST" && context.Request.Url.PathAndQuery == _settings!.relayWebhookPath)
                 {
                     using (StreamReader reader = new StreamReader(context.Request.InputStream))
                     {

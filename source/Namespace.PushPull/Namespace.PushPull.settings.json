@@ -4,6 +4,7 @@
   "relayConnectionName": "",
   "relayKeyName": "",
   "relayKey": "",
+  "relayWebhookPath": "",
   "namespaceTopicEndpoint": "",
   "namespaceTopicEndpointAccessKey": "",
   "namespaceTopicName": "",

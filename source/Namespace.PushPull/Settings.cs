@@ -9,6 +9,7 @@
         public string relayConnectionName { get; set; } = string.Empty;
         public string relayKeyName { get; set; } = string.Empty;
         public string relayKey { get; set; } = string.Empty;
+        public string relayWebhookPath { get; set; } = string.Empty;
 
         // namespace
         public string namespaceTopicEndpoint { get; set; } = string.Empty;

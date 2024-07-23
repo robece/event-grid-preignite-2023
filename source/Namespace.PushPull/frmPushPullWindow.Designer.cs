@@ -78,7 +78,7 @@
             // 
             statusStrip.ImageScalingSize = new Size(32, 32);
             statusStrip.Items.AddRange(new ToolStripItem[] { lblVersion, lblListener });
-            statusStrip.Location = new Point(0, 2144);
+            statusStrip.Location = new Point(0, 2077);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(2, 0, 26, 0);
             statusStrip.Size = new Size(3409, 42);
@@ -194,7 +194,7 @@
             lstViewWebhook.Location = new Point(58, 486);
             lstViewWebhook.Margin = new Padding(6);
             lstViewWebhook.Name = "lstViewWebhook";
-            lstViewWebhook.Size = new Size(3290, 723);
+            lstViewWebhook.Size = new Size(3290, 625);
             lstViewWebhook.TabIndex = 11;
             lstViewWebhook.UseCompatibleStateImageBehavior = false;
             // 
@@ -226,7 +226,7 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
-            label4.Location = new Point(58, 1286);
+            label4.Location = new Point(55, 1146);
             label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
             label4.Size = new Size(697, 54);
@@ -236,10 +236,10 @@
             // lstViewPull
             // 
             lstViewPull.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lstViewPull.Location = new Point(58, 1373);
+            lstViewPull.Location = new Point(58, 1233);
             lstViewPull.Margin = new Padding(6);
             lstViewPull.Name = "lstViewPull";
-            lstViewPull.Size = new Size(3290, 723);
+            lstViewPull.Size = new Size(3290, 625);
             lstViewPull.TabIndex = 17;
             lstViewPull.UseCompatibleStateImageBehavior = false;
             // 
@@ -247,7 +247,7 @@
             // 
             btnStartPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnStartPull.Font = new Font("Segoe UI", 15F);
-            btnStartPull.Location = new Point(2490, 1264);
+            btnStartPull.Location = new Point(2487, 1124);
             btnStartPull.Margin = new Padding(6);
             btnStartPull.Name = "btnStartPull";
             btnStartPull.Size = new Size(279, 98);
@@ -266,7 +266,7 @@
             btnStopPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnStopPull.Enabled = false;
             btnStopPull.Font = new Font("Segoe UI", 15F);
-            btnStopPull.Location = new Point(2781, 1263);
+            btnStopPull.Location = new Point(2778, 1123);
             btnStopPull.Margin = new Padding(6);
             btnStopPull.Name = "btnStopPull";
             btnStopPull.Size = new Size(279, 98);
@@ -279,7 +279,7 @@
             // 
             btnClearPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearPull.Font = new Font("Segoe UI", 15F);
-            btnClearPull.Location = new Point(3072, 1263);
+            btnClearPull.Location = new Point(3069, 1123);
             btnClearPull.Margin = new Padding(6);
             btnClearPull.Name = "btnClearPull";
             btnClearPull.Size = new Size(279, 98);
@@ -357,7 +357,7 @@
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(3409, 2186);
+            ClientSize = new Size(3409, 2119);
             Controls.Add(pbStorageEvents);
             Controls.Add(pbCustomEvents);
             Controls.Add(rdbSystemEvents);
