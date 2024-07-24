@@ -4,14 +4,13 @@ using Azure.Messaging;
 using Azure.Messaging.EventGrid.Namespaces;
 using Azure.Storage;
 using Azure.Storage.Blobs;
-using WatsonWebserver;
 using Microsoft.Azure.Relay;
 using Namespace.PushPull.Model;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.Json;
+using WatsonWebserver;
 using WatsonWebserver.Core;
-using System.Net.Http.Headers;
 
 namespace Namespace.PushPull
 {
@@ -81,7 +80,7 @@ namespace Namespace.PushPull
             WebserverSettings settings = new WebserverSettings();
             settings.Hostname = "localhost";
             settings.Port = 8000;
-            
+
             _webServer = new Webserver(settings, async (HttpContextBase ctx) =>
             {
                 string resp = "Hello from Namespace.PushPull app!";
@@ -371,7 +370,7 @@ namespace Namespace.PushPull
                 CloudEvent cloudEvent = new CloudEvent("/source",
                     $"{strPrefix}{strSuffix}",
                     myCustomDataSerializer.Serialize(new CustomNotificationModel() { NotificationType = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
-                              
+
                 await senderClient.SendAsync(cloudEvent);
                 _idxPublished++;
                 LblPublishedEventsUpdateTextSafe($"{_idxPublished}");

@@ -1,0 +1,9 @@
+﻿{
+  "version": "1.0.0",
+  "webServerProcessStartPath": "/api/start",
+  "webServerProcessStopPath": "/api/stop",
+  "webServerProcessInfoPath": "/api/info",
+  "namespaceTopicEndpoint": "https://robecehybridns01.westus2-1.eventgrid.azure.net",
+  "namespaceTopicEndpointAccessKey": "KK3aXW/svqbHuduwrKRgPYp3BMDrDv0YUAZEGFFPbTk=",
+  "namespaceTopicName": "custom-events-topic"
+}

@@ -54,7 +54,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "frmCustomEventsDiagram";
-            StartPosition = FormStartPosition.CenterScreen;
+            StartPosition = FormStartPosition.CenterParent;
             Text = "Diagram";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);

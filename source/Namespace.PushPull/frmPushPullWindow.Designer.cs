@@ -72,7 +72,7 @@
             // 
             pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(3266, 130);
+            pictureBox1.Location = new Point(3272, 130);
             pictureBox1.Margin = new Padding(6);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(85, 86);
@@ -84,10 +84,10 @@
             // 
             statusStrip.ImageScalingSize = new Size(32, 32);
             statusStrip.Items.AddRange(new ToolStripItem[] { lblVersion, lblListener });
-            statusStrip.Location = new Point(0, 2077);
+            statusStrip.Location = new Point(0, 1896);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(2, 0, 26, 0);
-            statusStrip.Size = new Size(3409, 42);
+            statusStrip.Size = new Size(3402, 42);
             statusStrip.TabIndex = 2;
             statusStrip.Text = "statusStrip1";
             // 
@@ -112,7 +112,7 @@
             progressBarPublish.Location = new Point(155, 130);
             progressBarPublish.Margin = new Padding(6);
             progressBarPublish.Name = "progressBarPublish";
-            progressBarPublish.Size = new Size(3100, 86);
+            progressBarPublish.Size = new Size(3105, 86);
             progressBarPublish.TabIndex = 4;
             // 
             // lblPublish
@@ -128,6 +128,7 @@
             // 
             // btnStartPublish
             // 
+            btnStartPublish.BackColor = Color.MediumAquamarine;
             btnStartPublish.Font = new Font("Segoe UI", 15F);
             btnStartPublish.Location = new Point(58, 242);
             btnStartPublish.Margin = new Padding(6);
@@ -135,11 +136,12 @@
             btnStartPublish.Size = new Size(279, 98);
             btnStartPublish.TabIndex = 6;
             btnStartPublish.Text = "Start";
-            btnStartPublish.UseVisualStyleBackColor = true;
+            btnStartPublish.UseVisualStyleBackColor = false;
             btnStartPublish.Click += btnPublishStart_Click;
             // 
             // btnStopPublish
             // 
+            btnStopPublish.BackColor = Color.MistyRose;
             btnStopPublish.Enabled = false;
             btnStopPublish.Font = new Font("Segoe UI", 15F);
             btnStopPublish.Location = new Point(349, 242);
@@ -148,7 +150,7 @@
             btnStopPublish.Size = new Size(279, 98);
             btnStopPublish.TabIndex = 7;
             btnStopPublish.Text = "Stop";
-            btnStopPublish.UseVisualStyleBackColor = true;
+            btnStopPublish.UseVisualStyleBackColor = false;
             btnStopPublish.Click += btnPublishStop_Click;
             // 
             // timerPublish
@@ -160,12 +162,12 @@
             // 
             lblPublishedEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblPublishedEvents.AutoSize = true;
-            lblPublishedEvents.Font = new Font("Segoe UI", 15F);
+            lblPublishedEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             lblPublishedEvents.ForeColor = Color.DarkGreen;
-            lblPublishedEvents.Location = new Point(3278, 56);
+            lblPublishedEvents.Location = new Point(3287, 56);
             lblPublishedEvents.Margin = new Padding(6, 0, 6, 0);
             lblPublishedEvents.Name = "lblPublishedEvents";
-            lblPublishedEvents.Size = new Size(45, 54);
+            lblPublishedEvents.Size = new Size(46, 54);
             lblPublishedEvents.TabIndex = 8;
             lblPublishedEvents.Text = "0";
             // 
@@ -173,17 +175,18 @@
             // 
             label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 15F);
+            label3.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             label3.ForeColor = Color.DarkGreen;
-            label3.Location = new Point(2952, 56);
+            label3.Location = new Point(2922, 56);
             label3.Margin = new Padding(6, 0, 6, 0);
             label3.Name = "label3";
-            label3.Size = new Size(331, 54);
+            label3.Size = new Size(353, 54);
             label3.TabIndex = 9;
             label3.Text = "Published Events:";
             // 
             // btnClearPublish
             // 
+            btnClearPublish.BackColor = Color.LemonChiffon;
             btnClearPublish.Font = new Font("Segoe UI", 15F);
             btnClearPublish.Location = new Point(640, 242);
             btnClearPublish.Margin = new Padding(6);
@@ -191,7 +194,7 @@
             btnClearPublish.Size = new Size(279, 98);
             btnClearPublish.TabIndex = 10;
             btnClearPublish.Text = "Clear";
-            btnClearPublish.UseVisualStyleBackColor = true;
+            btnClearPublish.UseVisualStyleBackColor = false;
             btnClearPublish.Click += btnPublishClear_Click;
             // 
             // lstViewPush
@@ -200,7 +203,7 @@
             lstViewPush.Location = new Point(58, 486);
             lstViewPush.Margin = new Padding(6);
             lstViewPush.Name = "lstViewPush";
-            lstViewPush.Size = new Size(3290, 625);
+            lstViewPush.Size = new Size(3299, 625);
             lstViewPush.TabIndex = 11;
             lstViewPush.UseCompatibleStateImageBehavior = false;
             // 
@@ -218,14 +221,15 @@
             // btnClearPush
             // 
             btnClearPush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClearPush.BackColor = Color.LemonChiffon;
             btnClearPush.Font = new Font("Segoe UI", 15F);
-            btnClearPush.Location = new Point(3069, 376);
+            btnClearPush.Location = new Point(3078, 376);
             btnClearPush.Margin = new Padding(6);
             btnClearPush.Name = "btnClearPush";
             btnClearPush.Size = new Size(279, 98);
             btnClearPush.TabIndex = 15;
             btnClearPush.Text = "Clear";
-            btnClearPush.UseVisualStyleBackColor = true;
+            btnClearPush.UseVisualStyleBackColor = false;
             btnClearPush.Click += btnClearPush_Click;
             // 
             // label4
@@ -245,21 +249,22 @@
             lstViewPull.Location = new Point(58, 1233);
             lstViewPull.Margin = new Padding(6);
             lstViewPull.Name = "lstViewPull";
-            lstViewPull.Size = new Size(3290, 625);
+            lstViewPull.Size = new Size(3299, 625);
             lstViewPull.TabIndex = 17;
             lstViewPull.UseCompatibleStateImageBehavior = false;
             // 
             // btnStartPull
             // 
             btnStartPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnStartPull.BackColor = Color.MediumAquamarine;
             btnStartPull.Font = new Font("Segoe UI", 15F);
-            btnStartPull.Location = new Point(2487, 1124);
+            btnStartPull.Location = new Point(2496, 1124);
             btnStartPull.Margin = new Padding(6);
             btnStartPull.Name = "btnStartPull";
             btnStartPull.Size = new Size(279, 98);
             btnStartPull.TabIndex = 18;
             btnStartPull.Text = "Start";
-            btnStartPull.UseVisualStyleBackColor = true;
+            btnStartPull.UseVisualStyleBackColor = false;
             btnStartPull.Click += btnStartPull_Click;
             // 
             // timerPull
@@ -270,46 +275,48 @@
             // btnStopPull
             // 
             btnStopPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnStopPull.BackColor = Color.MistyRose;
             btnStopPull.Enabled = false;
             btnStopPull.Font = new Font("Segoe UI", 15F);
-            btnStopPull.Location = new Point(2778, 1123);
+            btnStopPull.Location = new Point(2787, 1123);
             btnStopPull.Margin = new Padding(6);
             btnStopPull.Name = "btnStopPull";
             btnStopPull.Size = new Size(279, 98);
             btnStopPull.TabIndex = 19;
             btnStopPull.Text = "Stop";
-            btnStopPull.UseVisualStyleBackColor = true;
+            btnStopPull.UseVisualStyleBackColor = false;
             btnStopPull.Click += btnStopPull_Click;
             // 
             // btnClearPull
             // 
             btnClearPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClearPull.BackColor = Color.LemonChiffon;
             btnClearPull.Font = new Font("Segoe UI", 15F);
-            btnClearPull.Location = new Point(3069, 1123);
+            btnClearPull.Location = new Point(3078, 1124);
             btnClearPull.Margin = new Padding(6);
             btnClearPull.Name = "btnClearPull";
             btnClearPull.Size = new Size(279, 98);
             btnClearPull.TabIndex = 20;
             btnClearPull.Text = "Clear";
-            btnClearPull.UseVisualStyleBackColor = true;
+            btnClearPull.UseVisualStyleBackColor = false;
             btnClearPull.Click += btnClearPull_Click;
             // 
             // btnDiagram
             // 
             btnDiagram.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnDiagram.BackColor = Color.LightSteelBlue;
             btnDiagram.Font = new Font("Segoe UI", 15F);
-            btnDiagram.Location = new Point(3069, 242);
+            btnDiagram.Location = new Point(3078, 242);
             btnDiagram.Margin = new Padding(6);
             btnDiagram.Name = "btnDiagram";
             btnDiagram.Size = new Size(279, 98);
             btnDiagram.TabIndex = 21;
             btnDiagram.Text = "Diagram";
-            btnDiagram.UseVisualStyleBackColor = true;
+            btnDiagram.UseVisualStyleBackColor = false;
             btnDiagram.Click += btnDiagram_Click;
             // 
             // rdbCustomEvents
             // 
-            rdbCustomEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             rdbCustomEvents.AutoSize = true;
             rdbCustomEvents.Checked = true;
             rdbCustomEvents.Font = new Font("Segoe UI", 15F);
@@ -324,7 +331,6 @@
             // 
             // rdbSystemEvents
             // 
-            rdbSystemEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             rdbSystemEvents.AutoSize = true;
             rdbSystemEvents.Font = new Font("Segoe UI", 15F);
             rdbSystemEvents.Location = new Point(495, 34);
@@ -360,7 +366,6 @@
             // 
             // rdbRelaySDK
             // 
-            rdbRelaySDK.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             rdbRelaySDK.AutoSize = true;
             rdbRelaySDK.Checked = true;
             rdbRelaySDK.Font = new Font("Segoe UI", 15F);
@@ -375,7 +380,6 @@
             // 
             // rdbBridge
             // 
-            rdbBridge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             rdbBridge.AutoSize = true;
             rdbBridge.Font = new Font("Segoe UI", 15F);
             rdbBridge.Location = new Point(495, 30);
@@ -388,32 +392,32 @@
             // 
             // groupBox1
             // 
-            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox1.Controls.Add(rdbCustomEvents);
             groupBox1.Controls.Add(rdbSystemEvents);
-            groupBox1.Location = new Point(1845, 228);
+            groupBox1.Location = new Point(977, 230);
             groupBox1.Name = "groupBox1";
             groupBox1.Size = new Size(1215, 110);
             groupBox1.TabIndex = 29;
             groupBox1.TabStop = false;
+            groupBox1.Text = "Event types";
             // 
             // groupBox2
             // 
-            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox2.Controls.Add(rdbRelaySDK);
             groupBox2.Controls.Add(rdbBridge);
-            groupBox2.Location = new Point(1845, 364);
+            groupBox2.Location = new Point(1253, 364);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(1215, 110);
+            groupBox2.Size = new Size(939, 110);
             groupBox2.TabIndex = 30;
             groupBox2.TabStop = false;
+            groupBox2.Text = "Consumption mode";
             // 
             // frmPushPullWindow
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(3409, 2119);
+            ClientSize = new Size(3402, 1938);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(pbStorageEvents);
@@ -439,7 +443,6 @@
             Margin = new Padding(6);
             Name = "frmPushPullWindow";
             Text = "Azure Event Grid Namespace Delivery Using Push and Pull";
-            WindowState = FormWindowState.Maximized;
             FormClosing += frmPushPullWindow_FormClosing;
             Load += frmPushPullWindow_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();

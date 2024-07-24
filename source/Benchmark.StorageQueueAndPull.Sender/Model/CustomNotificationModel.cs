@@ -1,4 +1,4 @@
-﻿namespace Namespace.PushPull.Model
+﻿namespace Benchmark.StorageQueueAndPull.Sender
 {
     internal class CustomNotificationModel
     {
