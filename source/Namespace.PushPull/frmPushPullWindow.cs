@@ -4,10 +4,14 @@ using Azure.Messaging;
 using Azure.Messaging.EventGrid.Namespaces;
 using Azure.Storage;
 using Azure.Storage.Blobs;
+using WatsonWebserver;
 using Microsoft.Azure.Relay;
+using Namespace.PushPull.Model;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text.Json;
+using WatsonWebserver.Core;
+using System.Net.Http.Headers;
 
 namespace Namespace.PushPull
 {
@@ -16,15 +20,17 @@ namespace Namespace.PushPull
         private Settings? _settings = null;
         private int _idxPublished = 0;
         private int _lstViewFontSize = 17;
-        private List<KeyValuePair<string, double>> elements = new List<KeyValuePair<string, double>>
+        private List<KeyValuePair<string, double>> _states = new List<KeyValuePair<string, double>>
             {
                 new KeyValuePair<string, double>("Acknowledged", 0.5),
                 new KeyValuePair<string, double>("Released", 0.3),
                 new KeyValuePair<string, double>("Rejected", 0.2),
             };
-        //private static readonly HttpClient httpClient = new HttpClient();
-        private HybridConnectionListener? listener = null;
-        private HybridConnectionStream? stream = null;
+        private HybridConnectionListener? _hybridConnectionlistener = null;
+        private HybridConnectionStream? _hybridConnectionStream = null;
+        private Webserver? _webServer = null;
+
+        #region constructor
 
         public frmPushPullWindow()
         {
@@ -33,11 +39,9 @@ namespace Namespace.PushPull
             lblVersion.Text = $"Version: {_settings!.version}";
         }
 
-        private async void frmPushPullWindow_Load(object sender, EventArgs e)
-        {
-            InitTable();
-            await RunRelayAsync();
-        }
+        #endregion
+
+        #region private methods
 
         private void InitTable()
         {
@@ -46,19 +50,19 @@ namespace Namespace.PushPull
 
             var dataSize = (rdbCustomEvents.Checked ? 1200 : 3500);
 
-            lstViewWebhook.Clear();
+            lstViewPush.Clear();
             lstViewPull.Clear();
 
             // Webhook
 
-            lstViewWebhook.View = View.Details;
-            lstViewWebhook.GridLines = true;
-            lstViewWebhook.FullRowSelect = true;
-            lstViewWebhook.Scrollable = true;
-            lstViewWebhook.Columns.Add("Event State", 400, HorizontalAlignment.Left);
-            lstViewWebhook.Columns.Add("Time", 650, HorizontalAlignment.Left);
-            lstViewWebhook.Columns.Add("Data", dataSize, HorizontalAlignment.Left);
-            lstViewWebhook.SmallImageList = imgList;
+            lstViewPush.View = View.Details;
+            lstViewPush.GridLines = true;
+            lstViewPush.FullRowSelect = true;
+            lstViewPush.Scrollable = true;
+            lstViewPush.Columns.Add("Event State", 400, HorizontalAlignment.Left);
+            lstViewPush.Columns.Add("Time", 650, HorizontalAlignment.Left);
+            lstViewPush.Columns.Add("Data", dataSize, HorizontalAlignment.Left);
+            lstViewPush.SmallImageList = imgList;
 
             // Event Grid
 
@@ -72,35 +76,97 @@ namespace Namespace.PushPull
             lstViewPull.SmallImageList = imgList;
         }
 
+        private void InitWebServer()
+        {
+            WebserverSettings settings = new WebserverSettings();
+            settings.Hostname = "localhost";
+            settings.Port = 8000;
+            
+            _webServer = new Webserver(settings, async (HttpContextBase ctx) =>
+            {
+                string resp = "Hello from Namespace.PushPull app!";
+                ctx.Response.StatusCode = 200;
+                ctx.Response.ContentLength = resp.Length;
+                ctx.Response.ContentType = "text/plain";
+                await ctx.Response.Send(resp);
+                return;
+            });
+
+            _webServer.Routes.PreAuthentication.Static.Add(WatsonWebserver.Core.HttpMethod.OPTIONS, _settings!.relayBridgeWebhookPath, async (HttpContextBase ctx) =>
+            {
+                ctx.Response.StatusCode = 200;
+                var origin = ctx.Request.Headers["Webhook-Request-Origin"];
+                ctx.Response.Headers.Add("Webhook-Allowed-Origin", origin);
+
+                string response = "OK";
+                ctx.Response.ContentType = "text/plain";
+                ctx.Response.ContentLength = response.Length;
+                await ctx.Response.Send(response);
+                return;
+            });
+
+            _webServer.Routes.PreAuthentication.Static.Add(WatsonWebserver.Core.HttpMethod.POST, _settings!.relayBridgeWebhookPath, async (HttpContextBase ctx) =>
+            {
+                using (StreamReader reader = new StreamReader(ctx.Request.Data))
+                {
+                    string jsonData = await reader.ReadToEndAsync();
+                    var jsonBin = BinaryData.FromString(jsonData);
+                    CloudEvent @event = CloudEvent.Parse(jsonBin)!;
+
+                    string strData = string.Empty;
+                    if (rdbCustomEvents.Checked)
+                    {
+                        strData = @event.Data!.ToString();
+                        dynamic data = JObject.Parse(strData);
+                        strData = $"NotificationType: {data.notificationType}";
+                    }
+                    else
+                    {
+                        strData = @event.Data!.ToString();
+                        dynamic data = JObject.Parse(strData);
+                        strData = $"EventType: {@event.Type}, Url: {data.url}";
+                    }
+
+                    LstViewWebhookAddItemSafe("Delivered", @event.Time.ToString(), strData);
+                }
+
+                string response = "OK";
+                ctx.Response.ContentType = "text/plain";
+                ctx.Response.ContentLength = response.Length;
+                await ctx.Response.Send(response);
+                return;
+            });
+        }
+
         private async Task RunRelayAsync()
         {
             if (_settings == null)
                 return;
 
             var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_settings!.relayKeyName, _settings!.relayKey);
-            listener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings!.relayNamespace, _settings!.relayConnectionName)), tokenProvider);
+            _hybridConnectionlistener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings!.relayNamespace, _settings!.relayConnectionName)), tokenProvider);
 
             // Subscribe to the status events.
-            listener.Connecting += (o, e) =>
+            _hybridConnectionlistener.Connecting += (o, e) =>
             {
                 Console.WriteLine("Connecting");
-                lblListener.Text = "Listener connecting!";
+                lblListener.Text = "SDK Listener connecting!";
             };
 
-            listener.Offline += (o, e) =>
+            _hybridConnectionlistener.Offline += (o, e) =>
             {
                 Console.WriteLine("Offline");
-                lblListener.Text = "Listener offline!";
+                lblListener.Text = "SDK Listener offline!";
             };
 
-            listener.Online += (o, e) =>
+            _hybridConnectionlistener.Online += (o, e) =>
             {
                 Console.WriteLine("Online");
-                lblListener.Text = "Listener online!";
+                lblListener.Text = "SDK Listener online!";
             };
 
             // Provide an HTTP request handler
-            listener.RequestHandler = async (context) =>
+            _hybridConnectionlistener.RequestHandler = async (context) =>
             {
                 if (context.Request.HttpMethod == "OPTIONS" && context.Request.Url.PathAndQuery == _settings!.relayWebhookPath)
                 {
@@ -108,7 +174,7 @@ namespace Namespace.PushPull
                     //using HttpResponseMessage response = await httpClient.GetAsync(callback);
                     //response.EnsureSuccessStatusCode();
                     //string responseBody = await response.Content.ReadAsStringAsync();
-                    
+
                     context.Response.StatusCode = HttpStatusCode.OK;
                     context.Response.StatusDescription = "OK";
 
@@ -156,47 +222,44 @@ namespace Namespace.PushPull
             // Opening the listener establishes the control channel to
             // the Azure Relay service. The control channel is continuously 
             // maintained, and is reestablished when connectivity is disrupted.
-            await listener.OpenAsync();
+            await _hybridConnectionlistener.OpenAsync();
 
-            stream = await listener.AcceptConnectionAsync();
+            _hybridConnectionStream = await _hybridConnectionlistener.AcceptConnectionAsync();
         }
 
-        private void timerPublish_Tick(object sender, EventArgs e)
+        private string RandomizeEventState()
         {
-            if (rdbCustomEvents.Checked)
+            Random r = new Random();
+            double randomNumber = r.NextDouble();
+            double cumulative = 0.0;
+            for (int i = 0; i < _states.Count; i++)
             {
-                SendCustomEventsAsync();
+                cumulative += _states[i].Value;
+                if (randomNumber < cumulative)
+                {
+                    return _states[i].Key;
+                }
             }
-            else
+            return string.Empty;
+        }
+
+        private Color SelectForeColor(string? eventState)
+        {
+            switch (eventState)
             {
-                SendBlobFilesAsync();
+                case "Received":
+                    return Color.Black;
+                case "Delivered":
+                    return Color.DarkGoldenrod;
+                case "Acknowledged":
+                    return Color.Green;
+                case "Released":
+                    return Color.Blue;
+                case "Rejected":
+                    return Color.Red;
+                default:
+                    return Color.Black;
             }
-        }
-
-        private void btnPublishStart_Click(object sender, EventArgs e)
-        {
-            timerPublish.Start();
-            btnStartPublish.Enabled = false;
-            btnStopPublish.Enabled = true;
-            rdbCustomEvents.Enabled = false;
-            rdbSystemEvents.Enabled = false;
-            progressBarPublish.Style = ProgressBarStyle.Marquee;
-        }
-
-        private void btnPublishStop_Click(object sender, EventArgs e)
-        {
-            timerPublish.Stop();
-            btnStartPublish.Enabled = true;
-            btnStopPublish.Enabled = false;
-            rdbCustomEvents.Enabled = true;
-            rdbSystemEvents.Enabled = true;
-            progressBarPublish.Style = ProgressBarStyle.Blocks;
-        }
-
-        private void btnPublishClear_Click(object sender, EventArgs e)
-        {
-            _idxPublished = 0;
-            LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
         }
 
         private void LblPublishedEventsUpdateTextSafe(string? text)
@@ -209,11 +272,11 @@ namespace Namespace.PushPull
 
         private void LstViewWebhookAddItemSafe(string? eventState, string? time, string? dataPayload)
         {
-            if (lstViewWebhook.InvokeRequired)
+            if (lstViewPush.InvokeRequired)
             {
-                lstViewWebhook.Invoke(new Action(() =>
+                lstViewPush.Invoke(new Action(() =>
                 {
-                    ListViewItem entryListItem = lstViewWebhook.Items.Insert(0, eventState);
+                    ListViewItem entryListItem = lstViewPush.Items.Insert(0, eventState);
                     entryListItem.UseItemStyleForSubItems = false;
                     entryListItem.ForeColor = SelectForeColor(eventState);
                     entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Bold);
@@ -229,7 +292,7 @@ namespace Namespace.PushPull
             }
             else
             {
-                ListViewItem entryListItem = lstViewWebhook.Items.Insert(0, eventState);
+                ListViewItem entryListItem = lstViewPush.Items.Insert(0, eventState);
                 entryListItem.UseItemStyleForSubItems = false;
                 entryListItem.ForeColor = SelectForeColor(eventState);
                 entryListItem.Font = new Font(entryListItem.Font.FontFamily, _lstViewFontSize, FontStyle.Bold);
@@ -281,24 +344,7 @@ namespace Namespace.PushPull
             }
         }
 
-        private Color SelectForeColor(string? eventState)
-        {
-            switch (eventState)
-            {
-                case "Received":
-                    return Color.Black;
-                case "Delivered":
-                    return Color.DarkGoldenrod;
-                case "Acknowledged":
-                    return Color.Green;
-                case "Released":
-                    return Color.Blue;
-                case "Rejected":
-                    return Color.Red;
-                default:
-                    return Color.Black;
-            }
-        }
+        // publish custom events
 
         private async void SendCustomEventsAsync()
         {
@@ -324,13 +370,15 @@ namespace Namespace.PushPull
 
                 CloudEvent cloudEvent = new CloudEvent("/source",
                     $"{strPrefix}{strSuffix}",
-                    myCustomDataSerializer.Serialize(new CustomModel() { NotificationType = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
-
+                    myCustomDataSerializer.Serialize(new CustomNotificationModel() { NotificationType = $"{strPrefix}{strSuffix}" }), "application/json", CloudEventDataFormat.Json);
+                              
                 await senderClient.SendAsync(cloudEvent);
                 _idxPublished++;
                 LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
             });
         }
+
+        // publish system events
 
         private async void SendBlobFilesAsync()
         {
@@ -363,15 +411,66 @@ namespace Namespace.PushPull
             });
         }
 
-        private class CustomModel
+        #endregion
+
+        #region event handlers
+
+        // form
+
+        private async void frmPushPullWindow_Load(object sender, EventArgs e)
         {
-            public string? NotificationType { get; set; }
+            InitTable();
+            InitWebServer();
+            await RunRelayAsync();
         }
 
-        private void btnClearEventHub_Click(object sender, EventArgs e)
+        private async void frmPushPullWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            lstViewWebhook.Items.Clear();
+            //await stream.CloseAsync(new CancellationToken());
+            await _hybridConnectionlistener.CloseAsync();
         }
+
+        // publish
+
+        private void timerPublish_Tick(object sender, EventArgs e)
+        {
+            if (rdbCustomEvents.Checked)
+            {
+                SendCustomEventsAsync();
+            }
+            else
+            {
+                SendBlobFilesAsync();
+            }
+        }
+
+        private void btnPublishStart_Click(object sender, EventArgs e)
+        {
+            timerPublish.Start();
+            btnStartPublish.Enabled = false;
+            btnStopPublish.Enabled = true;
+            rdbCustomEvents.Enabled = false;
+            rdbSystemEvents.Enabled = false;
+            progressBarPublish.Style = ProgressBarStyle.Marquee;
+        }
+
+        private void btnPublishStop_Click(object sender, EventArgs e)
+        {
+            timerPublish.Stop();
+            btnStartPublish.Enabled = true;
+            btnStopPublish.Enabled = false;
+            rdbCustomEvents.Enabled = true;
+            rdbSystemEvents.Enabled = true;
+            progressBarPublish.Style = ProgressBarStyle.Blocks;
+        }
+
+        private void btnPublishClear_Click(object sender, EventArgs e)
+        {
+            _idxPublished = 0;
+            LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+        }
+
+        // pull delivery
 
         private async void timerPull_Tick(object sender, EventArgs e)
         {
@@ -448,22 +547,6 @@ namespace Namespace.PushPull
             });
         }
 
-        private string RandomizeEventState()
-        {
-            Random r = new Random();
-            double randomNumber = r.NextDouble();
-            double cumulative = 0.0;
-            for (int i = 0; i < elements.Count; i++)
-            {
-                cumulative += elements[i].Value;
-                if (randomNumber < cumulative)
-                {
-                    return elements[i].Key;
-                }
-            }
-            return string.Empty;
-        }
-
         private void btnStartPull_Click(object sender, EventArgs e)
         {
             timerPull.Start();
@@ -483,7 +566,16 @@ namespace Namespace.PushPull
             lstViewPull.Items.Clear();
         }
 
-        private void btnArchitecture_Click(object sender, EventArgs e)
+        // push delivery
+
+        private void btnClearPush_Click(object sender, EventArgs e)
+        {
+            lstViewPush.Items.Clear();
+        }
+
+        // diagram
+
+        private void btnDiagram_Click(object sender, EventArgs e)
         {
             if (rdbCustomEvents.Checked)
             {
@@ -507,11 +599,7 @@ namespace Namespace.PushPull
             }
         }
 
-        private async void frmPushPullWindow_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //await stream.CloseAsync(new CancellationToken());
-            await listener.CloseAsync();
-        }
+        // radio buttons
 
         private void rdbCustomEvents_CheckedChanged(object sender, EventArgs e)
         {
@@ -530,5 +618,25 @@ namespace Namespace.PushPull
 
             InitTable();
         }
+
+        private async void rdbRelaySDK_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdbRelaySDK.Checked)
+            {
+                _webServer.Stop();
+                await RunRelayAsync();
+            }
+        }
+
+        private async void rdbBridge_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdbBridge.Checked)
+            {
+                await _hybridConnectionlistener.CloseAsync();
+                _webServer.Start();
+            }
+        }
+
+        #endregion
     }
 }

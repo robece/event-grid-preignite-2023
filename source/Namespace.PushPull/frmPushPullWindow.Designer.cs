@@ -42,24 +42,30 @@
             lblPublishedEvents = new Label();
             label3 = new Label();
             btnClearPublish = new Button();
-            lstViewWebhook = new ListView();
+            lstViewPush = new ListView();
             label2 = new Label();
-            btnClearEventHub = new Button();
+            btnClearPush = new Button();
             label4 = new Label();
             lstViewPull = new ListView();
             btnStartPull = new Button();
             timerPull = new System.Windows.Forms.Timer(components);
             btnStopPull = new Button();
             btnClearPull = new Button();
-            btnArchitecture = new Button();
+            btnDiagram = new Button();
             rdbCustomEvents = new RadioButton();
             rdbSystemEvents = new RadioButton();
             pbCustomEvents = new PictureBox();
             pbStorageEvents = new PictureBox();
+            rdbRelaySDK = new RadioButton();
+            rdbBridge = new RadioButton();
+            groupBox1 = new GroupBox();
+            groupBox2 = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbCustomEvents).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pbStorageEvents).BeginInit();
+            groupBox1.SuspendLayout();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // pictureBox1
@@ -123,7 +129,7 @@
             // btnStartPublish
             // 
             btnStartPublish.Font = new Font("Segoe UI", 15F);
-            btnStartPublish.Location = new Point(58, 228);
+            btnStartPublish.Location = new Point(58, 242);
             btnStartPublish.Margin = new Padding(6);
             btnStartPublish.Name = "btnStartPublish";
             btnStartPublish.Size = new Size(279, 98);
@@ -136,7 +142,7 @@
             // 
             btnStopPublish.Enabled = false;
             btnStopPublish.Font = new Font("Segoe UI", 15F);
-            btnStopPublish.Location = new Point(349, 228);
+            btnStopPublish.Location = new Point(349, 242);
             btnStopPublish.Margin = new Padding(6);
             btnStopPublish.Name = "btnStopPublish";
             btnStopPublish.Size = new Size(279, 98);
@@ -179,7 +185,7 @@
             // btnClearPublish
             // 
             btnClearPublish.Font = new Font("Segoe UI", 15F);
-            btnClearPublish.Location = new Point(640, 228);
+            btnClearPublish.Location = new Point(640, 242);
             btnClearPublish.Margin = new Padding(6);
             btnClearPublish.Name = "btnClearPublish";
             btnClearPublish.Size = new Size(279, 98);
@@ -188,15 +194,15 @@
             btnClearPublish.UseVisualStyleBackColor = true;
             btnClearPublish.Click += btnPublishClear_Click;
             // 
-            // lstViewWebhook
+            // lstViewPush
             // 
-            lstViewWebhook.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lstViewWebhook.Location = new Point(58, 486);
-            lstViewWebhook.Margin = new Padding(6);
-            lstViewWebhook.Name = "lstViewWebhook";
-            lstViewWebhook.Size = new Size(3290, 625);
-            lstViewWebhook.TabIndex = 11;
-            lstViewWebhook.UseCompatibleStateImageBehavior = false;
+            lstViewPush.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lstViewPush.Location = new Point(58, 486);
+            lstViewPush.Margin = new Padding(6);
+            lstViewPush.Name = "lstViewPush";
+            lstViewPush.Size = new Size(3290, 625);
+            lstViewPush.TabIndex = 11;
+            lstViewPush.UseCompatibleStateImageBehavior = false;
             // 
             // label2
             // 
@@ -209,18 +215,18 @@
             label2.TabIndex = 12;
             label2.Text = "Push delivery to On-Premise Webhook with Azure Relay";
             // 
-            // btnClearEventHub
+            // btnClearPush
             // 
-            btnClearEventHub.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnClearEventHub.Font = new Font("Segoe UI", 15F);
-            btnClearEventHub.Location = new Point(3069, 376);
-            btnClearEventHub.Margin = new Padding(6);
-            btnClearEventHub.Name = "btnClearEventHub";
-            btnClearEventHub.Size = new Size(279, 98);
-            btnClearEventHub.TabIndex = 15;
-            btnClearEventHub.Text = "Clear";
-            btnClearEventHub.UseVisualStyleBackColor = true;
-            btnClearEventHub.Click += btnClearEventHub_Click;
+            btnClearPush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClearPush.Font = new Font("Segoe UI", 15F);
+            btnClearPush.Location = new Point(3069, 376);
+            btnClearPush.Margin = new Padding(6);
+            btnClearPush.Name = "btnClearPush";
+            btnClearPush.Size = new Size(279, 98);
+            btnClearPush.TabIndex = 15;
+            btnClearPush.Text = "Clear";
+            btnClearPush.UseVisualStyleBackColor = true;
+            btnClearPush.Click += btnClearPush_Click;
             // 
             // label4
             // 
@@ -288,18 +294,18 @@
             btnClearPull.UseVisualStyleBackColor = true;
             btnClearPull.Click += btnClearPull_Click;
             // 
-            // btnArchitecture
+            // btnDiagram
             // 
-            btnArchitecture.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnArchitecture.Font = new Font("Segoe UI", 15F);
-            btnArchitecture.Location = new Point(3069, 228);
-            btnArchitecture.Margin = new Padding(6);
-            btnArchitecture.Name = "btnArchitecture";
-            btnArchitecture.Size = new Size(279, 98);
-            btnArchitecture.TabIndex = 21;
-            btnArchitecture.Text = "Diagram";
-            btnArchitecture.UseVisualStyleBackColor = true;
-            btnArchitecture.Click += btnArchitecture_Click;
+            btnDiagram.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnDiagram.Font = new Font("Segoe UI", 15F);
+            btnDiagram.Location = new Point(3069, 242);
+            btnDiagram.Margin = new Padding(6);
+            btnDiagram.Name = "btnDiagram";
+            btnDiagram.Size = new Size(279, 98);
+            btnDiagram.TabIndex = 21;
+            btnDiagram.Text = "Diagram";
+            btnDiagram.UseVisualStyleBackColor = true;
+            btnDiagram.Click += btnDiagram_Click;
             // 
             // rdbCustomEvents
             // 
@@ -307,7 +313,7 @@
             rdbCustomEvents.AutoSize = true;
             rdbCustomEvents.Checked = true;
             rdbCustomEvents.Font = new Font("Segoe UI", 15F);
-            rdbCustomEvents.Location = new Point(2001, 248);
+            rdbCustomEvents.Location = new Point(30, 34);
             rdbCustomEvents.Name = "rdbCustomEvents";
             rdbCustomEvents.Size = new Size(315, 58);
             rdbCustomEvents.TabIndex = 23;
@@ -321,7 +327,7 @@
             rdbSystemEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             rdbSystemEvents.AutoSize = true;
             rdbSystemEvents.Font = new Font("Segoe UI", 15F);
-            rdbSystemEvents.Location = new Point(2346, 248);
+            rdbSystemEvents.Location = new Point(495, 34);
             rdbSystemEvents.Name = "rdbSystemEvents";
             rdbSystemEvents.Size = new Size(714, 58);
             rdbSystemEvents.TabIndex = 24;
@@ -352,25 +358,75 @@
             pbStorageEvents.TabStop = false;
             pbStorageEvents.Visible = false;
             // 
+            // rdbRelaySDK
+            // 
+            rdbRelaySDK.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            rdbRelaySDK.AutoSize = true;
+            rdbRelaySDK.Checked = true;
+            rdbRelaySDK.Font = new Font("Segoe UI", 15F);
+            rdbRelaySDK.Location = new Point(30, 30);
+            rdbRelaySDK.Name = "rdbRelaySDK";
+            rdbRelaySDK.Size = new Size(343, 58);
+            rdbRelaySDK.TabIndex = 27;
+            rdbRelaySDK.TabStop = true;
+            rdbRelaySDK.Text = "Azure Relay SDK";
+            rdbRelaySDK.UseVisualStyleBackColor = true;
+            rdbRelaySDK.CheckedChanged += rdbRelaySDK_CheckedChanged;
+            // 
+            // rdbBridge
+            // 
+            rdbBridge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            rdbBridge.AutoSize = true;
+            rdbBridge.Font = new Font("Segoe UI", 15F);
+            rdbBridge.Location = new Point(495, 30);
+            rdbBridge.Name = "rdbBridge";
+            rdbBridge.Size = new Size(387, 58);
+            rdbBridge.TabIndex = 28;
+            rdbBridge.Text = "Azure Relay Bridge";
+            rdbBridge.UseVisualStyleBackColor = true;
+            rdbBridge.CheckedChanged += rdbBridge_CheckedChanged;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox1.Controls.Add(rdbCustomEvents);
+            groupBox1.Controls.Add(rdbSystemEvents);
+            groupBox1.Location = new Point(1845, 228);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(1215, 110);
+            groupBox1.TabIndex = 29;
+            groupBox1.TabStop = false;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox2.Controls.Add(rdbRelaySDK);
+            groupBox2.Controls.Add(rdbBridge);
+            groupBox2.Location = new Point(1845, 364);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(1215, 110);
+            groupBox2.TabIndex = 30;
+            groupBox2.TabStop = false;
+            // 
             // frmPushPullWindow
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(3409, 2119);
+            Controls.Add(groupBox2);
+            Controls.Add(groupBox1);
             Controls.Add(pbStorageEvents);
             Controls.Add(pbCustomEvents);
-            Controls.Add(rdbSystemEvents);
-            Controls.Add(rdbCustomEvents);
-            Controls.Add(btnArchitecture);
+            Controls.Add(btnDiagram);
             Controls.Add(btnClearPull);
             Controls.Add(btnStopPull);
             Controls.Add(btnStartPull);
             Controls.Add(lstViewPull);
             Controls.Add(label4);
-            Controls.Add(btnClearEventHub);
+            Controls.Add(btnClearPush);
             Controls.Add(label2);
-            Controls.Add(lstViewWebhook);
+            Controls.Add(lstViewPush);
             Controls.Add(btnClearPublish);
             Controls.Add(label3);
             Controls.Add(lblPublishedEvents);
@@ -391,6 +447,10 @@
             statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbCustomEvents).EndInit();
             ((System.ComponentModel.ISupportInitialize)pbStorageEvents).EndInit();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -406,9 +466,9 @@
         private Label lblPublishedEvents;
         private Label label3;
         private Button btnClearPublish;
-        private ListView lstViewWebhook;
+        private ListView lstViewPush;
         private Label label2;
-        private Button btnClearEventHub;
+        private Button btnClearPush;
         private Label label4;
         private ListView lstViewPull;
         private Button btnStartPull;
@@ -416,11 +476,15 @@
         private Button btnStopPull;
         private Button btnClearPull;
         private ToolStripStatusLabel lblVersion;
-        private Button btnArchitecture;
+        private Button btnDiagram;
         private RadioButton rdbCustomEvents;
         private RadioButton rdbSystemEvents;
         private PictureBox pbCustomEvents;
         private PictureBox pbStorageEvents;
         private ToolStripStatusLabel lblListener;
+        private RadioButton rdbRelaySDK;
+        private RadioButton rdbBridge;
+        private GroupBox groupBox1;
+        private GroupBox groupBox2;
     }
 }
