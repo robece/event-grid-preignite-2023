@@ -18,6 +18,8 @@ namespace Namespace.PushPull
     {
         private Settings? _settings = null;
         private int _idxPublished = 0;
+        private int _idxPushed = 0;
+        private int _idxPulled = 0;
         private int _lstViewFontSize = 17;
         private List<KeyValuePair<string, double>> _states = new List<KeyValuePair<string, double>>
             {
@@ -25,9 +27,11 @@ namespace Namespace.PushPull
                 new KeyValuePair<string, double>("Released", 0.3),
                 new KeyValuePair<string, double>("Rejected", 0.2),
             };
-        private HybridConnectionListener? _hybridConnectionlistener = null;
+        private HybridConnectionListener? _hybridConnectionListener = null;
         private HybridConnectionStream? _hybridConnectionStream = null;
         private Webserver? _webServer = null;
+        private CancellationTokenSource? _pullCancellationTokenSource = null;
+        private bool _pullExecution = false;
 
         #region constructor
 
@@ -126,6 +130,8 @@ namespace Namespace.PushPull
                         strData = $"EventType: {@event.Type}, Url: {data.url}";
                     }
 
+                    _idxPushed++;
+                    LblPushedEventsUpdateTextSafe($"{_idxPushed:n0}");
                     LstViewWebhookAddItemSafe("Delivered", @event.Time.ToString(), strData);
                 }
 
@@ -143,29 +149,27 @@ namespace Namespace.PushPull
                 return;
 
             var tokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(_settings!.relayKeyName, _settings!.relayKey);
-            _hybridConnectionlistener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings!.relayNamespace, _settings!.relayConnectionName)), tokenProvider);
+            _hybridConnectionListener = new HybridConnectionListener(new Uri(string.Format("sb://{0}/{1}", _settings!.relayNamespace, _settings!.relayConnectionName)), tokenProvider);
 
-            // Subscribe to the status events.
-            _hybridConnectionlistener.Connecting += (o, e) =>
+            _hybridConnectionListener.Connecting += (o, e) =>
             {
                 Console.WriteLine("Connecting");
                 lblListener.Text = "SDK Listener connecting!";
             };
 
-            _hybridConnectionlistener.Offline += (o, e) =>
+            _hybridConnectionListener.Offline += (o, e) =>
             {
                 Console.WriteLine("Offline");
                 lblListener.Text = "SDK Listener offline!";
             };
 
-            _hybridConnectionlistener.Online += (o, e) =>
+            _hybridConnectionListener.Online += (o, e) =>
             {
                 Console.WriteLine("Online");
                 lblListener.Text = "SDK Listener online!";
             };
 
-            // Provide an HTTP request handler
-            _hybridConnectionlistener.RequestHandler = async (context) =>
+            _hybridConnectionListener.RequestHandler = async (context) =>
             {
                 if (context.Request.HttpMethod == "OPTIONS" && context.Request.Url.PathAndQuery == _settings!.relayWebhookPath)
                 {
@@ -209,6 +213,8 @@ namespace Namespace.PushPull
                             strData = $"EventType: {@event.Type}, Url: {data.url}";
                         }
 
+                        _idxPushed++;
+                        LblPushedEventsUpdateTextSafe($"{_idxPushed:n0}");
                         LstViewWebhookAddItemSafe("Delivered", @event.Time.ToString(), strData);
                     }
 
@@ -221,9 +227,9 @@ namespace Namespace.PushPull
             // Opening the listener establishes the control channel to
             // the Azure Relay service. The control channel is continuously 
             // maintained, and is reestablished when connectivity is disrupted.
-            await _hybridConnectionlistener.OpenAsync();
+            await _hybridConnectionListener.OpenAsync();
 
-            _hybridConnectionStream = await _hybridConnectionlistener.AcceptConnectionAsync();
+            _hybridConnectionStream = await _hybridConnectionListener.AcceptConnectionAsync();
         }
 
         private string RandomizeEventState()
@@ -249,7 +255,7 @@ namespace Namespace.PushPull
                 case "Received":
                     return Color.Black;
                 case "Delivered":
-                    return Color.DarkGoldenrod;
+                    return Color.Purple;
                 case "Acknowledged":
                     return Color.Green;
                 case "Released":
@@ -267,6 +273,22 @@ namespace Namespace.PushPull
                 lblPublishedEvents.Invoke(new Action(() => lblPublishedEvents.Text = text));
             else
                 lblPublishedEvents.Text = text;
+        }
+
+        private void LblPushedEventsUpdateTextSafe(string? text)
+        {
+            if (lblPushedEvents.InvokeRequired)
+                lblPushedEvents.Invoke(new Action(() => lblPushedEvents.Text = text));
+            else
+                lblPushedEvents.Text = text;
+        }
+
+        private void LblPulledEventsUpdateTextSafe(string? text)
+        {
+            if (lblPulledEvents.InvokeRequired)
+                lblPulledEvents.Invoke(new Action(() => lblPulledEvents.Text = text));
+            else
+                lblPulledEvents.Text = text;
         }
 
         private void LstViewWebhookAddItemSafe(string? eventState, string? time, string? dataPayload)
@@ -373,7 +395,7 @@ namespace Namespace.PushPull
 
                 await senderClient.SendAsync(cloudEvent);
                 _idxPublished++;
-                LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+                LblPublishedEventsUpdateTextSafe($"{_idxPublished:n0}");
             });
         }
 
@@ -401,12 +423,12 @@ namespace Namespace.PushPull
                 BlobClient blobClient = containerClient.GetBlobClient(fileName);
                 await blobClient.UploadAsync(localFilePath, true);
                 _idxPublished++;
-                LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+                LblPublishedEventsUpdateTextSafe($"{_idxPublished:n0}");
 
                 await blobClient.DeleteAsync();
                 File.Delete(localFilePath);
                 _idxPublished++;
-                LblPublishedEventsUpdateTextSafe($"{_idxPublished}");
+                LblPublishedEventsUpdateTextSafe($"{_idxPublished:n0}");
             });
         }
 
@@ -425,8 +447,11 @@ namespace Namespace.PushPull
 
         private async void frmPushPullWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //await stream.CloseAsync(new CancellationToken());
-            await _hybridConnectionlistener.CloseAsync();
+            if (_hybridConnectionStream != null)
+                await _hybridConnectionStream.CloseAsync(new CancellationToken());
+
+            if (_hybridConnectionListener != null)
+                await _hybridConnectionListener.CloseAsync();
         }
 
         // publish
@@ -473,77 +498,90 @@ namespace Namespace.PushPull
 
         private async void timerPull_Tick(object sender, EventArgs e)
         {
-            await Task.Factory.StartNew(async () =>
+            if (!_pullExecution)
             {
-                string topicEndpoint = _settings!.namespaceTopicEndpoint;
-                string topicAccessKey = _settings!.namespaceTopicEndpointAccessKey;
-
-                var keyCredential = new AzureKeyCredential(topicAccessKey);
-                var receiverClient = new EventGridReceiverClient(new Uri(topicEndpoint), _settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, keyCredential);
-
-                ReceiveResult receiveResult = await receiverClient.ReceiveAsync(_settings!.namespaceTopicSubscriptionMaxEvents);
-
-                foreach (ReceiveDetails detail in receiveResult.Details)
+                _pullExecution = true;
+                _pullCancellationTokenSource = new CancellationTokenSource();
+                var task = await Task.Factory.StartNew(async () =>
                 {
-                    CloudEvent @event = detail.Event;
-                    BrokerProperties brokerProperties = detail.BrokerProperties;
+                    string topicEndpoint = _settings!.namespaceTopicEndpoint;
+                    string topicAccessKey = _settings!.namespaceTopicEndpointAccessKey;
 
-                    string strData = string.Empty;
-                    if (rdbCustomEvents.Checked)
+                    var keyCredential = new AzureKeyCredential(topicAccessKey);
+                    var receiverClient = new EventGridReceiverClient(new Uri(topicEndpoint), _settings!.namespaceTopicName, _settings!.namespaceTopicSubscriptionName, keyCredential);
+
+                    while (true)
                     {
-                        strData = @event.Data!.ToString();
-                        dynamic data = JObject.Parse(strData);
-                        strData = $"NotificationType: {data.notificationType}";
+                        _pullCancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                        ReceiveResult receiveResult = await receiverClient.ReceiveAsync(_settings!.namespaceTopicSubscriptionMaxEvents);
+
+                        _idxPulled = _idxPulled + receiveResult.Details.Count;
+                        LblPulledEventsUpdateTextSafe($"{_idxPulled:n0}");
+
+                        foreach (ReceiveDetails detail in receiveResult.Details)
+                        {
+                            CloudEvent @event = detail.Event;
+                            BrokerProperties brokerProperties = detail.BrokerProperties;
+
+                            string strData = string.Empty;
+                            if (rdbCustomEvents.Checked)
+                            {
+                                strData = @event.Data!.ToString();
+                                dynamic data = JObject.Parse(strData);
+                                strData = $"NotificationType: {data.notificationType}";
+                            }
+                            else
+                            {
+                                strData = @event.Data!.ToString();
+                                dynamic data = JObject.Parse(strData);
+                                strData = $"EventType: {@event.Type}, Url: {data.url}";
+                            }
+
+                            LstViewPullAddItemSafe("Received", $"{@event.Time}", $"{strData}");
+
+                            string eventState = RandomizeEventState();
+
+                            var toRelease = new List<string>();
+                            var toAcknowledge = new List<string>();
+                            var toReject = new List<string>();
+
+                            switch (eventState)
+                            {
+                                case "Acknowledged":
+
+                                    toAcknowledge.Add(brokerProperties.LockToken);
+                                    AcknowledgeResult acknowledgeResult = await receiverClient.AcknowledgeAsync(toAcknowledge);
+
+                                    if (acknowledgeResult.SucceededLockTokens.Count > 0)
+                                        LstViewPullAddItemSafe("Acknowledged", $"{@event.Time}", $"{strData}");
+
+                                    break;
+
+                                case "Released":
+
+                                    toRelease.Add(brokerProperties.LockToken);
+                                    ReleaseResult releaseResult = await receiverClient.ReleaseAsync(toRelease);
+
+                                    if (releaseResult.SucceededLockTokens.Count > 0)
+                                        LstViewPullAddItemSafe("Released", $"{@event.Time}", $"{strData}");
+
+                                    break;
+
+                                case "Rejected":
+
+                                    toReject.Add(brokerProperties.LockToken);
+                                    RejectResult rejectResult = await receiverClient.RejectAsync(toReject);
+
+                                    if (rejectResult.SucceededLockTokens.Count > 0)
+                                        LstViewPullAddItemSafe("Rejected", $"{@event.Time}", $"{strData}");
+
+                                    break;
+                            }
+                        }
                     }
-                    else
-                    {
-                        strData = @event.Data!.ToString();
-                        dynamic data = JObject.Parse(strData);
-                        strData = $"EventType: {@event.Type}, Url: {data.url}";
-                    }
-
-                    LstViewPullAddItemSafe("Received", $"{@event.Time}", $"{strData}");
-
-                    string eventState = RandomizeEventState();
-
-                    var toRelease = new List<string>();
-                    var toAcknowledge = new List<string>();
-                    var toReject = new List<string>();
-
-                    switch (eventState)
-                    {
-                        case "Acknowledged":
-
-                            toAcknowledge.Add(brokerProperties.LockToken);
-                            AcknowledgeResult acknowledgeResult = await receiverClient.AcknowledgeAsync(toAcknowledge);
-
-                            if (acknowledgeResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Acknowledged", $"{@event.Time}", $"{strData}");
-
-                            break;
-
-                        case "Released":
-
-                            toRelease.Add(brokerProperties.LockToken);
-                            ReleaseResult releaseResult = await receiverClient.ReleaseAsync(toRelease);
-
-                            if (releaseResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Released", $"{@event.Time}", $"{strData}");
-
-                            break;
-
-                        case "Rejected":
-
-                            toReject.Add(brokerProperties.LockToken);
-                            RejectResult rejectResult = await receiverClient.RejectAsync(toReject);
-
-                            if (rejectResult.SucceededLockTokens.Count > 0)
-                                LstViewPullAddItemSafe("Rejected", $"{@event.Time}", $"{strData}");
-
-                            break;
-                    }
-                }
-            });
+                }, _pullCancellationTokenSource.Token);
+            }
         }
 
         private void btnStartPull_Click(object sender, EventArgs e)
@@ -555,6 +593,10 @@ namespace Namespace.PushPull
 
         private void btnStopPull_Click(object sender, EventArgs e)
         {
+            if (_pullCancellationTokenSource != null)
+                _pullCancellationTokenSource.Cancel();
+
+            _pullExecution = false;
             timerPull.Stop();
             btnStartPull.Enabled = true;
             btnStopPull.Enabled = false;
@@ -563,13 +605,16 @@ namespace Namespace.PushPull
         private void btnClearPull_Click(object sender, EventArgs e)
         {
             lstViewPull.Items.Clear();
+            _idxPulled = 0;
+            LblPulledEventsUpdateTextSafe($"{_idxPulled}");
         }
 
         // push delivery
-
         private void btnClearPush_Click(object sender, EventArgs e)
         {
             lstViewPush.Items.Clear();
+            _idxPushed = 0;
+            LblPushedEventsUpdateTextSafe($"{_idxPushed}");
         }
 
         // diagram
@@ -622,7 +667,9 @@ namespace Namespace.PushPull
         {
             if (rdbRelaySDK.Checked)
             {
-                _webServer.Stop();
+                if (_webServer != null)
+                    _webServer.Stop();
+
                 await RunRelayAsync();
             }
         }
@@ -631,8 +678,11 @@ namespace Namespace.PushPull
         {
             if (rdbBridge.Checked)
             {
-                await _hybridConnectionlistener.CloseAsync();
-                _webServer.Start();
+                if (_hybridConnectionListener != null)
+                    await _hybridConnectionListener.CloseAsync();
+
+                if (_webServer != null)
+                    _webServer.Start();
             }
         }
 

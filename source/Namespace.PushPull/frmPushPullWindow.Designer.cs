@@ -60,6 +60,10 @@
             rdbBridge = new RadioButton();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
+            label1 = new Label();
+            lblPulledEvents = new Label();
+            label5 = new Label();
+            lblPushedEvents = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbCustomEvents).BeginInit();
@@ -200,7 +204,7 @@
             // lstViewPush
             // 
             lstViewPush.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lstViewPush.Location = new Point(58, 486);
+            lstViewPush.Location = new Point(58, 458);
             lstViewPush.Margin = new Padding(6);
             lstViewPush.Name = "lstViewPush";
             lstViewPush.Size = new Size(3299, 625);
@@ -211,7 +215,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
-            label2.Location = new Point(58, 398);
+            label2.Location = new Point(58, 371);
             label2.Margin = new Padding(6, 0, 6, 0);
             label2.Name = "label2";
             label2.Size = new Size(1079, 54);
@@ -223,10 +227,10 @@
             btnClearPush.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearPush.BackColor = Color.LemonChiffon;
             btnClearPush.Font = new Font("Segoe UI", 15F);
-            btnClearPush.Location = new Point(3078, 376);
+            btnClearPush.Location = new Point(3078, 350);
             btnClearPush.Margin = new Padding(6);
             btnClearPush.Name = "btnClearPush";
-            btnClearPush.Size = new Size(279, 98);
+            btnClearPush.Size = new Size(279, 96);
             btnClearPush.TabIndex = 15;
             btnClearPush.Text = "Clear";
             btnClearPush.UseVisualStyleBackColor = false;
@@ -236,7 +240,7 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
-            label4.Location = new Point(55, 1146);
+            label4.Location = new Point(58, 1117);
             label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
             label4.Size = new Size(697, 54);
@@ -246,7 +250,7 @@
             // lstViewPull
             // 
             lstViewPull.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lstViewPull.Location = new Point(58, 1233);
+            lstViewPull.Location = new Point(58, 1205);
             lstViewPull.Margin = new Padding(6);
             lstViewPull.Name = "lstViewPull";
             lstViewPull.Size = new Size(3299, 625);
@@ -258,7 +262,7 @@
             btnStartPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnStartPull.BackColor = Color.MediumAquamarine;
             btnStartPull.Font = new Font("Segoe UI", 15F);
-            btnStartPull.Location = new Point(2496, 1124);
+            btnStartPull.Location = new Point(2496, 1095);
             btnStartPull.Margin = new Padding(6);
             btnStartPull.Name = "btnStartPull";
             btnStartPull.Size = new Size(279, 98);
@@ -269,7 +273,7 @@
             // 
             // timerPull
             // 
-            timerPull.Interval = 2000;
+            timerPull.Interval = 1000;
             timerPull.Tick += timerPull_Tick;
             // 
             // btnStopPull
@@ -278,7 +282,7 @@
             btnStopPull.BackColor = Color.MistyRose;
             btnStopPull.Enabled = false;
             btnStopPull.Font = new Font("Segoe UI", 15F);
-            btnStopPull.Location = new Point(2787, 1123);
+            btnStopPull.Location = new Point(2787, 1095);
             btnStopPull.Margin = new Padding(6);
             btnStopPull.Name = "btnStopPull";
             btnStopPull.Size = new Size(279, 98);
@@ -292,7 +296,7 @@
             btnClearPull.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnClearPull.BackColor = Color.LemonChiffon;
             btnClearPull.Font = new Font("Segoe UI", 15F);
-            btnClearPull.Location = new Point(3078, 1124);
+            btnClearPull.Location = new Point(3078, 1095);
             btnClearPull.Margin = new Padding(6);
             btnClearPull.Name = "btnClearPull";
             btnClearPull.Size = new Size(279, 98);
@@ -306,7 +310,7 @@
             btnDiagram.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnDiagram.BackColor = Color.LightSteelBlue;
             btnDiagram.Font = new Font("Segoe UI", 15F);
-            btnDiagram.Location = new Point(3078, 242);
+            btnDiagram.Location = new Point(3078, 240);
             btnDiagram.Margin = new Padding(6);
             btnDiagram.Name = "btnDiagram";
             btnDiagram.Size = new Size(279, 98);
@@ -333,7 +337,7 @@
             // 
             rdbSystemEvents.AutoSize = true;
             rdbSystemEvents.Font = new Font("Segoe UI", 15F);
-            rdbSystemEvents.Location = new Point(495, 34);
+            rdbSystemEvents.Location = new Point(361, 38);
             rdbSystemEvents.Name = "rdbSystemEvents";
             rdbSystemEvents.Size = new Size(714, 58);
             rdbSystemEvents.TabIndex = 24;
@@ -382,7 +386,7 @@
             // 
             rdbBridge.AutoSize = true;
             rdbBridge.Font = new Font("Segoe UI", 15F);
-            rdbBridge.Location = new Point(495, 30);
+            rdbBridge.Location = new Point(388, 30);
             rdbBridge.Name = "rdbBridge";
             rdbBridge.Size = new Size(387, 58);
             rdbBridge.TabIndex = 28;
@@ -396,7 +400,7 @@
             groupBox1.Controls.Add(rdbSystemEvents);
             groupBox1.Location = new Point(977, 230);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(1215, 110);
+            groupBox1.Size = new Size(1109, 110);
             groupBox1.TabIndex = 29;
             groupBox1.TabStop = false;
             groupBox1.Text = "Event types";
@@ -405,12 +409,64 @@
             // 
             groupBox2.Controls.Add(rdbRelaySDK);
             groupBox2.Controls.Add(rdbBridge);
-            groupBox2.Location = new Point(1253, 364);
+            groupBox2.Location = new Point(2111, 230);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(939, 110);
+            groupBox2.Size = new Size(781, 110);
             groupBox2.TabIndex = 30;
             groupBox2.TabStop = false;
-            groupBox2.Text = "Consumption mode";
+            groupBox2.Text = "Azure Relay mode ";
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            label1.ForeColor = Color.DarkGreen;
+            label1.Location = new Point(779, 1117);
+            label1.Margin = new Padding(6, 0, 6, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(286, 54);
+            label1.TabIndex = 31;
+            label1.Text = "Pulled Events:";
+            // 
+            // lblPulledEvents
+            // 
+            lblPulledEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblPulledEvents.AutoSize = true;
+            lblPulledEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            lblPulledEvents.ForeColor = Color.DarkGreen;
+            lblPulledEvents.Location = new Point(1077, 1117);
+            lblPulledEvents.Margin = new Padding(6, 0, 6, 0);
+            lblPulledEvents.Name = "lblPulledEvents";
+            lblPulledEvents.Size = new Size(46, 54);
+            lblPulledEvents.TabIndex = 32;
+            lblPulledEvents.Text = "0";
+            // 
+            // label5
+            // 
+            label5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label5.AutoSize = true;
+            label5.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            label5.ForeColor = Color.DarkGreen;
+            label5.Location = new Point(1184, 371);
+            label5.Margin = new Padding(6, 0, 6, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(306, 54);
+            label5.TabIndex = 33;
+            label5.Text = "Pushed Events:";
+            // 
+            // lblPushedEvents
+            // 
+            lblPushedEvents.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblPushedEvents.AutoSize = true;
+            lblPushedEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            lblPushedEvents.ForeColor = Color.DarkGreen;
+            lblPushedEvents.Location = new Point(1502, 371);
+            lblPushedEvents.Margin = new Padding(6, 0, 6, 0);
+            lblPushedEvents.Name = "lblPushedEvents";
+            lblPushedEvents.Size = new Size(46, 54);
+            lblPushedEvents.TabIndex = 34;
+            lblPushedEvents.Text = "0";
             // 
             // frmPushPullWindow
             // 
@@ -418,6 +474,10 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(3402, 1938);
+            Controls.Add(lblPushedEvents);
+            Controls.Add(label5);
+            Controls.Add(lblPulledEvents);
+            Controls.Add(label1);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(pbStorageEvents);
@@ -489,5 +549,9 @@
         private RadioButton rdbBridge;
         private GroupBox groupBox1;
         private GroupBox groupBox2;
+        private Label label1;
+        private Label lblPulledEvents;
+        private Label label5;
+        private Label lblPushedEvents;
     }
 }
