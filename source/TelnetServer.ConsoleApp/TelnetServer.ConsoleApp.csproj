@@ -9,14 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventGrid.Namespaces" Version="1.0.0" />
+    <PackageReference Include="Azure.Core" Version="1.41.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Watson" Version="6.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Benchmark.StorageQueueAndPull.Sender.settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

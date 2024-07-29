@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,9 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="frmSystemEventsDiagram.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="frmSystemEventsDiagram.cs" />
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

@@ -34,7 +34,7 @@
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(2908, 1687);
+            ClientSize = new Size(1546, 1030);
             Name = "frmBenchmarkWindow";
             Text = "Form1";
             Load += Form1_Load;

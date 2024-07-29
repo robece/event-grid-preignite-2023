@@ -422,12 +422,13 @@
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             label1.ForeColor = Color.DarkGreen;
-            label1.Location = new Point(779, 1117);
+            label1.Location = new Point(2140, 1117);
             label1.Margin = new Padding(6, 0, 6, 0);
             label1.Name = "label1";
             label1.Size = new Size(286, 54);
             label1.TabIndex = 31;
             label1.Text = "Pulled Events:";
+            label1.Visible = false;
             // 
             // lblPulledEvents
             // 
@@ -435,12 +436,13 @@
             lblPulledEvents.AutoSize = true;
             lblPulledEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             lblPulledEvents.ForeColor = Color.DarkGreen;
-            lblPulledEvents.Location = new Point(1077, 1117);
+            lblPulledEvents.Location = new Point(2438, 1117);
             lblPulledEvents.Margin = new Padding(6, 0, 6, 0);
             lblPulledEvents.Name = "lblPulledEvents";
             lblPulledEvents.Size = new Size(46, 54);
             lblPulledEvents.TabIndex = 32;
             lblPulledEvents.Text = "0";
+            lblPulledEvents.Visible = false;
             // 
             // label5
             // 
@@ -448,12 +450,13 @@
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             label5.ForeColor = Color.DarkGreen;
-            label5.Location = new Point(1184, 371);
+            label5.Location = new Point(2702, 371);
             label5.Margin = new Padding(6, 0, 6, 0);
             label5.Name = "label5";
             label5.Size = new Size(306, 54);
             label5.TabIndex = 33;
             label5.Text = "Pushed Events:";
+            label5.Visible = false;
             // 
             // lblPushedEvents
             // 
@@ -461,12 +464,13 @@
             lblPushedEvents.AutoSize = true;
             lblPushedEvents.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
             lblPushedEvents.ForeColor = Color.DarkGreen;
-            lblPushedEvents.Location = new Point(1502, 371);
+            lblPushedEvents.Location = new Point(3020, 371);
             lblPushedEvents.Margin = new Padding(6, 0, 6, 0);
             lblPushedEvents.Name = "lblPushedEvents";
             lblPushedEvents.Size = new Size(46, 54);
             lblPushedEvents.TabIndex = 34;
             lblPushedEvents.Text = "0";
+            lblPushedEvents.Visible = false;
             // 
             // frmPushPullWindow
             // 
